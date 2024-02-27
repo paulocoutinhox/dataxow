@@ -34,6 +34,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "DataXow"
+            modules("jdk.unsupported")
         }
     }
 }
