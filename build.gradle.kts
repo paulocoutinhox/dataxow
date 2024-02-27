@@ -33,7 +33,7 @@ compose.desktop {
         mainClass = "com.dataxow.MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "com.dataxow.app"
+            packageName = "DataXow"
         }
     }
 }
