@@ -8,18 +8,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.awt.SwingPanel
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toComposeImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
-import com.dataxow.DesktopVideoPlayer
 import uk.co.caprica.vlcj.factory.discovery.NativeDiscovery
 import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent
 import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent
@@ -31,6 +33,8 @@ import java.util.*
 import org.jetbrains.skia.Image as SkiaImage
 
 fun main() = application {
+    System.setProperty("compose.interop.blending", "true")
+
     var text by remember { mutableStateOf("Your text here") }
     var imagePath by remember { mutableStateOf<String?>(null) }
     var videoPath by remember { mutableStateOf<String?>(null) }
@@ -80,31 +84,43 @@ fun main() = application {
                     Image(
                         bitmap = SkiaImage.makeFromEncoded(File(it).readBytes()).toComposeImageBitmap(),
                         contentDescription = null,
-                        modifier = Modifier.fillMaxSize().clipToBounds()
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
                     )
                 }
                 if (videoPath != null) {
-//                    DesktopVideoPlayer(
-//                        videoPath!!,
-//                        false,
-//                        1.0f,
-//                        1.0f,
-//                        1.0f,
-//                        false,
-//                        null,
-//                        Modifier.align(Alignment.Center)
-//                    ) {
-//                        // ignore
-//                    }
-                    VideoPlayerImpl(videoPath!!, Modifier.align(Alignment.Center))
+                    videoPlayerImpl(
+                        videoPath!!,
+                        Modifier.fillMaxSize()
+                            .aspectRatio(16f / 9f, matchHeightConstraintsFirst = true)
+                            .align(Alignment.Center)
+                    )
                 }
-                BasicText(
+                Text(
                     text = text,
                     style = TextStyle(
                         color = Color.White,
-                        fontSize = 24.sp,
+                        fontSize = 60.sp,
                         fontWeight = FontWeight.Bold,
-                        background = Color.Black
+                        background = Color.Transparent,
+                        textAlign = TextAlign.Center,
+                    ),
+                    modifier = Modifier.align(Alignment.Center)
+                )
+                Text(
+                    text = text,
+                    style = TextStyle(
+                        color = Color.Black,
+                        fontSize = 60.sp,
+                        fontWeight = FontWeight.Bold,
+                        background = Color.Transparent,
+                        textAlign = TextAlign.Center,
+                        drawStyle = Stroke(
+                            miter = 10f,
+                            width = 5f,
+                            join = StrokeJoin.Round,
+
+                        )
                     ),
                     modifier = Modifier.align(Alignment.Center)
                 )
@@ -114,7 +130,7 @@ fun main() = application {
 }
 
 @Composable
-fun VideoPlayerImpl(
+fun videoPlayerImpl(
     url: String,
     modifier: Modifier,
 ) {
@@ -123,7 +139,7 @@ fun VideoPlayerImpl(
 
     val factory = remember { { mediaPlayerComponent } }
 
-    LaunchedEffect(url) { mediaPlayer.media().play/*OR .start*/(url) }
+    LaunchedEffect(url) { mediaPlayer.media().play(url) }
     DisposableEffect(Unit) { onDispose(mediaPlayer::release) }
     SwingPanel(
         factory = factory,
