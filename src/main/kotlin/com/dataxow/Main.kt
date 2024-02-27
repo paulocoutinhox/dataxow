@@ -1,6 +1,5 @@
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -120,7 +119,7 @@ fun main() = application {
                             width = 5f,
                             join = StrokeJoin.Round,
 
-                        )
+                            )
                     ),
                     modifier = Modifier.align(Alignment.Center)
                 )
