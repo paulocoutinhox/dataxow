@@ -34,8 +34,6 @@ import java.util.*
 import org.jetbrains.skia.Image as SkiaImage
 
 fun main() = application {
-    System.setProperty("compose.interop.blending", "true")
-
     var text by remember { mutableStateOf("Your text here") }
     var imagePath by remember { mutableStateOf<String?>(null) }
     var videoPath by remember { mutableStateOf<String?>(null) }
