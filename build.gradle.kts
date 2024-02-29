@@ -25,24 +25,19 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(18)
+    jvmToolchain(17)
 }
 
 compose.desktop {
     application {
         mainClass = "com.dataxow.MainKt"
-        jvmArgs += listOf("-client")
-        jvmArgs += listOf("-Dfile.encoding=UTF-8")
-        jvmArgs += listOf("-Dapple.awt.application.appearance=system")
+//        jvmArgs += listOf("-client")
+//        jvmArgs += listOf("-Dfile.encoding=UTF-8")
+//        jvmArgs += listOf("-Dapple.awt.application.appearance=system")
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "DataXow"
-//            modules("jdk.unsupported")
             modules(
-                "java.compiler",
-                "java.instrument",
-                "java.prefs",
-                "java.sql",
                 "jdk.unsupported",
                 "jdk.accessibility"
             )
