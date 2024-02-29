@@ -25,7 +25,7 @@ tasks.test {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(18)
 }
 
 compose.desktop {
