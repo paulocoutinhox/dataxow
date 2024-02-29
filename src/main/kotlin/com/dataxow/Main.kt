@@ -8,11 +8,8 @@ import androidx.compose.material.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.awt.SwingPanel
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -23,14 +20,21 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
-import uk.co.caprica.vlcj.factory.discovery.NativeDiscovery
-import uk.co.caprica.vlcj.player.component.CallbackMediaPlayerComponent
-import uk.co.caprica.vlcj.player.component.EmbeddedMediaPlayerComponent
-import java.awt.Component
+import org.jetbrains.skia.Bitmap
+import org.jetbrains.skia.ColorAlphaType
+import org.jetbrains.skia.ImageInfo
+import uk.co.caprica.vlcj.factory.MediaPlayerFactory
+import uk.co.caprica.vlcj.player.base.MediaPlayer
+import uk.co.caprica.vlcj.player.embedded.videosurface.CallbackVideoSurface
+import uk.co.caprica.vlcj.player.embedded.videosurface.VideoSurfaceAdapters
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.format.RV32BufferFormat
 import java.awt.FileDialog
 import java.awt.Frame
 import java.io.File
-import java.util.*
+import java.nio.ByteBuffer
 import org.jetbrains.skia.Image as SkiaImage
 
 fun main() = application {
@@ -133,44 +137,55 @@ fun videoPlayerImpl(
     url: String,
     modifier: Modifier,
 ) {
-    val mediaPlayerComponent = remember { initializeMediaPlayerComponent() }
-    val mediaPlayer = remember { mediaPlayerComponent.mediaPlayer() }
+    val mediaPlayerFactory = MediaPlayerFactory()
+    val mediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer()
+    
+    val adapter = remember { RenderCallbackAdapter(640, 480) }
+    val videoSurface = CallbackVideoSurface(adapter, adapter, true, VideoSurfaceAdapters.getVideoSurfaceAdapter())
 
-    val factory = remember { { mediaPlayerComponent } }
+    mediaPlayer.videoSurface().set(videoSurface)
+    mediaPlayer.media().play(url)
 
-    LaunchedEffect(url) { mediaPlayer.media().play(url) }
-    DisposableEffect(Unit) { onDispose(mediaPlayer::release) }
-    SwingPanel(
-        factory = factory,
-        background = Color.Transparent,
-        modifier = modifier,
-        update = {
-
+    Box(modifier = Modifier.fillMaxSize()) {
+        adapter.imageBitmap?.let { bitmap ->
+            Image(bitmap = bitmap, contentDescription = "Video Frame")
         }
-    )
-}
-
-private fun initializeMediaPlayerComponent(): Component {
-    NativeDiscovery().discover()
-    return if (isMacOS()) {
-        CallbackMediaPlayerComponent()
-    } else {
-        EmbeddedMediaPlayerComponent()
     }
 }
 
+class RenderCallbackAdapter(private val width: Int, private val height: Int) : BufferFormatCallback, RenderCallback {
+    var imageBitmap by mutableStateOf<ImageBitmap?>(null)
+        private set
 
-private fun Component.mediaPlayer() = when (this) {
-    is CallbackMediaPlayerComponent -> mediaPlayer()
-    is EmbeddedMediaPlayerComponent -> mediaPlayer()
-    else -> error("mediaPlayer() can only be called on vlcj player components")
-}
+    override fun getBufferFormat(sourceWidth: Int, sourceHeight: Int): BufferFormat {
+        return RV32BufferFormat(width, height)
+    }
 
-private fun isMacOS(): Boolean {
-    val os = System
-        .getProperty("os.name", "generic")
-        .lowercase(Locale.ENGLISH)
-    return "mac" in os || "darwin" in os
+    override fun allocatedBuffers(buffers: Array<out ByteBuffer>) {
+        // this is managed by vlcj
+    }
+
+    override fun display(mediaPlayer: MediaPlayer?, nativeBuffers: Array<ByteBuffer>, bufferFormat: BufferFormat) {
+        val buffer = nativeBuffers[0]
+        buffer.rewind()
+
+        val size = bufferFormat.width * bufferFormat.height * 4
+        if (buffer.isDirect) {
+            val byteArray = ByteArray(size)
+            buffer.get(byteArray)
+            updateImageBitmap(byteArray, bufferFormat.width, bufferFormat.height)
+        } else {
+            updateImageBitmap(buffer.array(), bufferFormat.width, bufferFormat.height)
+        }
+    }
+
+    private fun updateImageBitmap(pixelData: ByteArray, width: Int, height: Int) {
+        val bitmap = Bitmap().apply {
+            allocPixels(ImageInfo.makeS32(width, height, ColorAlphaType.PREMUL))
+            installPixels(imageInfo, pixelData, (width * 4))
+        }
+        imageBitmap = bitmap.asComposeImageBitmap()
+    }
 }
 
 fun selectFile(title: String, fileType: String): File? {
