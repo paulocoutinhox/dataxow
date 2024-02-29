@@ -34,7 +34,31 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "DataXow"
-            modules("jdk.unsupported")
+//            modules("jdk.unsupported")
+            modules(
+                "java.compiler",
+                "java.instrument",
+                "java.prefs",
+                "java.sql",
+                "jdk.unsupported",
+                "jdk.accessibility"
+            )
+//            appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
+            copyright = "Copyright 2023 Paulo Coutinho"
+            vendor = "Paulo Coutinho"
+//            licenseFile.set(project.file("LICENSE"))
+//            windows{
+////                console = true
+//                dirChooser = true
+//                menuGroup = "幕境"
+//                iconFile.set(project.file("src/jvmMain/resources/logo/logo.ico"))
+//            }
+//            macOS{
+//                iconFile.set(project.file("src/jvmMain/resources/logo/logo.icns"))
+//            }
+//            linux {
+//                iconFile.set(project.file("src/jvmMain/resources/logo/logo.png"))
+//            }
         }
     }
 }
