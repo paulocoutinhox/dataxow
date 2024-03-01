@@ -38,7 +38,7 @@ import java.io.File
 import java.nio.ByteBuffer
 import org.jetbrains.skia.Image as SkiaImage
 
-val adapter = RenderCallbackAdapter(800, 600)
+val adapter = RenderCallbackAdapter()
 val videoSurface = CallbackVideoSurface(adapter, adapter, true, VideoSurfaceAdapters.getVideoSurfaceAdapter())
 val mediaPlayerFactory = MediaPlayerFactory()
 val mediaPlayer: EmbeddedMediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer()
@@ -163,12 +163,12 @@ fun videoFrame(imageBitmap: ImageBitmap?) {
 }
 
 
-class RenderCallbackAdapter(private val width: Int, private val height: Int) : BufferFormatCallback, RenderCallback {
+class RenderCallbackAdapter : BufferFormatCallback, RenderCallback {
     var imageBitmap by mutableStateOf<ImageBitmap?>(null)
         private set
 
     override fun getBufferFormat(sourceWidth: Int, sourceHeight: Int): BufferFormat {
-        return RV32BufferFormat(width, height)
+        return RV32BufferFormat(sourceWidth, sourceHeight)
     }
 
     override fun allocatedBuffers(buffers: Array<out ByteBuffer>) {
