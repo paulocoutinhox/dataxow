@@ -1,24 +1,19 @@
 package com.dataxow
 
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.lightColors
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
+import com.dataxow.app.AppData
+import com.dataxow.app.ConfigManager
 import com.dataxow.helper.NetHelper
 import com.dataxow.helper.SystemHelper
 import com.dataxow.net.RequestData
 import com.dataxow.net.ResponseData
-import com.dataxow.renderer.RenderCallbackAdapter
 import com.dataxow.ui.helper.monitorWatcher
 import com.dataxow.ui.window.mainWindow
 import com.dataxow.ui.window.playerWindow
@@ -33,34 +28,11 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
-import uk.co.caprica.vlcj.factory.MediaPlayerFactory
-import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer
-import uk.co.caprica.vlcj.player.embedded.videosurface.CallbackVideoSurface
-import uk.co.caprica.vlcj.player.embedded.videosurface.VideoSurfaceAdapters
-
-var server: NettyApplicationEngine? = null
-
-val adapter = RenderCallbackAdapter()
-val videoSurface = CallbackVideoSurface(adapter, adapter, true, VideoSurfaceAdapters.getVideoSurfaceAdapter())
-val mediaPlayerFactory = MediaPlayerFactory()
-val mediaPlayer: EmbeddedMediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer()
-
-val fontPoppinsBold = FontFamily(
-    Font(
-        resource = "fonts/Poppins-Bold.ttf",
-        weight = FontWeight.Bold,
-        style = FontStyle.Normal
-    )
-)
-
-var onTextUpdate: ((String) -> Unit)? = null
-
-val colorPalette = lightColors(
-    primary = Color(0xFF0d6efd),
-)
 
 fun main() = application {
     var windowState by remember { mutableStateOf(WindowState()) }
+
+    var projectPath by remember { mutableStateOf(AppData.config.project) }
 
     var text by remember { mutableStateOf("DataXow Demo Text") }
     var imagePath by remember { mutableStateOf<String?>(null) }
@@ -70,22 +42,27 @@ fun main() = application {
     val ips = NetHelper.getLocalIPAddresses()
 
     var serverHost by remember { mutableStateOf(if (ips.isNotEmpty()) ips.first() else "") }
-    var serverPort by remember { mutableStateOf("8080") }
+    var serverPort by remember { mutableStateOf(AppData.config.serverPort) }
     var qrCodeBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var serverStatus by remember { mutableStateOf(false) }
 
-    onTextUpdate = { newText ->
+    AppData.onTextUpdate = { newText ->
         text = newText
     }
 
-    mediaPlayer.controls().repeat = true
+    AppData.mediaPlayer.controls().repeat = true
 
     // Main window
     MaterialTheme(
-        colors = colorPalette
+        colors = AppData.colorPalette
     ) {
         mainWindow(
             applicationScope = this,
+            projectPath = projectPath,
+            setProjectPath = {
+                projectPath = it
+                AppData.config.project = it
+            },
             text = text,
             setText = { text = it },
             imagePath = imagePath,
@@ -98,7 +75,10 @@ fun main() = application {
             serverHost = serverHost,
             setServerHost = { serverHost = it },
             serverPort = serverPort,
-            setServerPort = { serverPort = it },
+            setServerPort = {
+                serverPort = it
+                AppData.config.serverPort = it
+            },
             qrCodeBitmap = qrCodeBitmap,
             setQrCodeBitmap = { qrCodeBitmap = it },
             serverStatus = serverStatus,
@@ -119,18 +99,24 @@ fun main() = application {
             imagePath = imagePath,
             videoPath = videoPath,
             text = text,
-            mediaPlayer = mediaPlayer,
-            videoSurface = videoSurface, adapter = adapter,
-            fontPoppinsBold = fontPoppinsBold,
+            mediaPlayer = AppData.mediaPlayer,
+            videoSurface = AppData.videoSurface,
+            adapter = AppData.adapter,
+            fontPoppinsBold = AppData.fontPoppinsBold,
             onCloseRequest = {
                 playerWindowOpen = false
             }
         )
     }
+
+    // Exit
+    Runtime.getRuntime().addShutdownHook(Thread {
+        ConfigManager.saveConfig(AppData.config)
+    })
 }
 
 fun startServer(host: String, port: Int) {
-    server = embeddedServer(Netty, host = host, port = port) {
+    AppData.server = embeddedServer(Netty, host = host, port = port) {
         install(CORS) {
             anyHost()
         }
@@ -151,7 +137,7 @@ fun startServer(host: String, port: Int) {
                         val newText = requestData.params["text"]
 
                         if (newText != null) {
-                            onTextUpdate?.invoke(newText)
+                            AppData.onTextUpdate?.invoke(newText)
                         }
                     }
                 }
@@ -172,5 +158,5 @@ fun startServer(host: String, port: Int) {
 }
 
 fun stopServer() {
-    server?.stop(0, 0)
+    AppData.server?.stop(0, 0)
 }

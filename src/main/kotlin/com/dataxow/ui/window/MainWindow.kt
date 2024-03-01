@@ -15,13 +15,17 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
+import com.dataxow.app.AppData
 import com.dataxow.helper.FileHelper
 import com.dataxow.helper.ImageHelper
 import com.dataxow.ui.components.ipSelector
+import javax.swing.JFileChooser
 
 @Composable
 fun mainWindow(
     applicationScope: ApplicationScope,
+    projectPath: String,
+    setProjectPath: (String) -> Unit,
     text: String,
     setText: (String) -> Unit,
     imagePath: String?,
@@ -40,11 +44,31 @@ fun mainWindow(
     serverStatus: Boolean,
     setServerStatus: (Boolean) -> Unit,
     startServer: (String, Int) -> Unit,
-    stopServer: () -> Unit
+    stopServer: () -> Unit,
 ) {
     Window(onCloseRequest = applicationScope::exitApplication, title = "DataXow") {
         Scaffold {
             Column(modifier = Modifier.padding(16.dp)) {
+                Row {
+                    TextField(
+                        value = projectPath,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Project Folder") }
+                    )
+                    Button(onClick = {
+                        val chooser = JFileChooser().apply {
+                            fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+                        }
+                        val result = chooser.showOpenDialog(null)
+                        if (result == JFileChooser.APPROVE_OPTION) {
+                            setProjectPath(chooser.selectedFile.absolutePath)
+                            AppData.config.project = projectPath
+                        }
+                    }) {
+                        Text("Select Folder")
+                    }
+                }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TextField(
                         value = text,

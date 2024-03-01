@@ -43,7 +43,8 @@ fun playerWindow(
         onCloseRequest = { onCloseRequest() },
         title = "Player",
         undecorated = true,
-        state = windowState
+        state = windowState,
+        alwaysOnTop = true
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             imagePath?.let {
@@ -86,9 +87,8 @@ fun playerWindow(
                     drawStyle = Stroke(
                         miter = 10f,
                         width = 5f,
-                        join = StrokeJoin.Round,
-
-                        )
+                        join = StrokeJoin.Round
+                    )
                 ),
                 maxFontSize = 200.sp,
                 modifier = Modifier.align(Alignment.Center).wrapContentSize(Alignment.Center)
