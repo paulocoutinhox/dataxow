@@ -1,4 +1,6 @@
-# JDataXow
+# DataXow
+
+This is a complete datashow application that render text, image and video on other screen devices.
 
 ## References
 
