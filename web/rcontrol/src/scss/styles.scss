@@ -1,0 +1,10 @@
+$body-color: #333;
+$body-bg: #fff;
+$border-radius: .4rem;
+
+@import "bootstrap/scss/bootstrap";
+
+:root {
+    touch-action: pan-x pan-y;
+    height: 100%
+}

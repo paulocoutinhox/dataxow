@@ -22,11 +22,6 @@ Brewfile.lock.json
 node_modules
 package-lock.json
 
-# cmake
-CMakeUserPresets.json
-CMakeSettings.json
-CMakeLists.txt.user
-
 # java/kotlin
 .gradle
 

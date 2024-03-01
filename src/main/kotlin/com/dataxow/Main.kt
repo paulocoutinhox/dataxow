@@ -10,22 +10,18 @@ import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import com.dataxow.app.AppData
 import com.dataxow.app.ConfigManager
+import com.dataxow.app.configureRoutes
 import com.dataxow.helper.NetHelper
 import com.dataxow.helper.SystemHelper
-import com.dataxow.net.RequestData
-import com.dataxow.net.ResponseData
 import com.dataxow.ui.helper.monitorWatcher
 import com.dataxow.ui.window.mainWindow
 import com.dataxow.ui.window.playerWindow
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
-import io.ktor.server.http.content.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
-import io.ktor.server.request.*
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
 
@@ -126,31 +122,7 @@ fun startServer(host: String, port: Int) {
             })
         }
         routing {
-            staticResources("/", "web")
-            post("/module/call") {
-                val requestData = call.receive<RequestData>()
-
-                if (requestData.func == "modules.player.update_data") {
-                    val type = requestData.params?.get("type") ?: return@post
-
-                    if (type == "text") {
-                        val newText = requestData.params["text"]
-
-                        if (newText != null) {
-                            AppData.onTextUpdate?.invoke(newText)
-                        }
-                    }
-                }
-
-                call.respond(
-                    ResponseData(
-                        true, data = mapOf(
-                            "func" to requestData.func.toString(),
-                            "params" to requestData.params.toString(),
-                        )
-                    )
-                )
-            }
+            configureRoutes()
         }
     }.apply {
         start(wait = false)
