@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
@@ -39,6 +40,7 @@ import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
 import org.jetbrains.skia.Bitmap
 import org.jetbrains.skia.Rect
@@ -48,6 +50,8 @@ import uk.co.caprica.vlcj.player.embedded.videosurface.CallbackVideoSurface
 import uk.co.caprica.vlcj.player.embedded.videosurface.VideoSurfaceAdapters
 import java.awt.FileDialog
 import java.awt.Frame
+import java.awt.GraphicsDevice
+import java.awt.GraphicsEnvironment
 import java.io.File
 import java.net.InetAddress
 import java.net.NetworkInterface
@@ -75,6 +79,8 @@ val colorPalette = lightColors(
 )
 
 fun main() = application {
+    var windowState by remember { mutableStateOf(WindowState()) }
+
     var text by remember { mutableStateOf("Your text here") }
     var imagePath by remember { mutableStateOf<String?>(null) }
     var videoPath by remember { mutableStateOf<String?>(null) }
@@ -156,13 +162,17 @@ fun main() = application {
         }
     }
 
+    monitorWatcher { isMultiMonitor, screenDevice ->
+        windowState = getMonitorState(isMultiMonitor, screenDevice)
+    }
+
     // Second window logic
     if (secondWindowOpen) {
         Window(
             onCloseRequest = { secondWindowOpen = false },
             title = "Player",
             undecorated = true,
-            state = WindowState(position = WindowPosition.Aligned(Alignment.Center)),
+            state = windowState
         ) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 imagePath?.let {
@@ -272,6 +282,54 @@ fun videoFrame(imageBitmap: ImageBitmap?) {
             modifier = Modifier.fillMaxSize()
         )
     }
+}
+
+@Composable
+fun monitorWatcher(onMonitorChange: (isMultiMonitor: Boolean, device: GraphicsDevice?) -> Unit) {
+    var lastMonitorCount by remember { mutableStateOf(-1) }
+
+    LaunchedEffect(key1 = "monitorWatcher") {
+        while (true) {
+            val graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment()
+            val screenDevices = graphicsEnvironment.screenDevices
+            val currentMonitorCount = screenDevices.size
+
+            val isMultiMonitor = currentMonitorCount > 1
+            val screenDevice = if (isMultiMonitor) screenDevices[1] else screenDevices.getOrNull(0)
+
+            if (lastMonitorCount != currentMonitorCount) {
+                onMonitorChange(isMultiMonitor, screenDevice)
+                lastMonitorCount = currentMonitorCount
+            }
+            delay(1000)
+        }
+    }
+}
+
+fun getMonitorState(isMultiMonitor: Boolean, device: GraphicsDevice?): WindowState {
+    if (isMultiMonitor) {
+        device?.let {
+            val configuration = it.defaultConfiguration
+            val bounds = configuration.bounds
+
+            return WindowState(
+                size = DpSize(bounds.width.dp, bounds.height.dp),
+                position = WindowPosition.Absolute(x = bounds.x.dp, y = bounds.y.dp)
+            )
+        }
+    }
+
+    val devices = GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
+    val primaryMonitorBounds = devices[0].defaultConfiguration.bounds
+    val windowWidth = 320.dp.value.toInt()
+    val windowHeight = 160.dp.value.toInt()
+    val positionX = (primaryMonitorBounds.width - windowWidth).dp
+    val positionY = (primaryMonitorBounds.height - windowHeight).dp
+
+    return WindowState(
+        size = DpSize(320.dp, 160.dp),
+        position = WindowPosition.Absolute(x = positionX, y = positionY)
+    )
 }
 
 fun selectFile(title: String, fileType: String): File? {
