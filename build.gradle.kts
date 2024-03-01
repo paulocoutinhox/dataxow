@@ -2,7 +2,8 @@ import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
     kotlin("jvm") version "1.9.22"
-    id("org.jetbrains.compose") version "1.6.0-rc03"
+    id("org.jetbrains.compose") version "1.6.0"
+    kotlin("plugin.serialization") version "1.5.10"
 }
 
 group = "com.dataxow"
@@ -17,6 +18,13 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation("uk.co.caprica:vlcj:4.8.2")
+    implementation("io.ktor:ktor-server-core:2.3.8")
+    implementation("io.ktor:ktor-server-netty:2.3.8")
+    implementation("io.ktor:ktor-server-content-negotiation:2.0.0")
+    implementation("io.ktor:ktor-server-cors:2.3.8")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.0.0")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:1.5.4")
+    implementation("com.google.zxing:core:3.5.3")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 }
 
@@ -31,32 +39,29 @@ kotlin {
 compose.desktop {
     application {
         mainClass = "com.dataxow.MainKt"
-//        jvmArgs += listOf("-client")
-//        jvmArgs += listOf("-Dfile.encoding=UTF-8")
-//        jvmArgs += listOf("-Dapple.awt.application.appearance=system")
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "DataXow"
-            modules(
-                "jdk.unsupported",
-                "jdk.accessibility"
-            )
-//            appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
-            copyright = "Copyright 2023 Paulo Coutinho"
+            packageVersion = version.toString()
+            appResourcesRootDir.set(project.layout.projectDirectory.dir("resources"))
+            copyright = "2024 Paulo Coutinho. All rights reserved."
             vendor = "Paulo Coutinho"
-//            licenseFile.set(project.file("LICENSE"))
-//            windows{
-////                console = true
-//                dirChooser = true
-//                menuGroup = "幕境"
-//                iconFile.set(project.file("src/jvmMain/resources/logo/logo.ico"))
-//            }
-//            macOS{
-//                iconFile.set(project.file("src/jvmMain/resources/logo/logo.icns"))
-//            }
-//            linux {
-//                iconFile.set(project.file("src/jvmMain/resources/logo/logo.png"))
-//            }
+            licenseFile.set(project.file("LICENSE.txt"))
+            modules(
+                "jdk.unsupported"
+            )
+            windows {
+                dirChooser = true
+                menuGroup = "DataXow"
+                iconFile.set(project.file("src/main/resources/icons/app.ico"))
+            }
+            macOS {
+                iconFile.set(project.file("src/main/resources/icons/app.icns"))
+                bundleID = "com.dataxow.app"
+            }
+            linux {
+                iconFile.set(project.file("src/main/resources/icons/app.png"))
+            }
         }
     }
 }
