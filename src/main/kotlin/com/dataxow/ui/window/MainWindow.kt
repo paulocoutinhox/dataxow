@@ -15,7 +15,6 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
-import com.dataxow.app.AppData
 import com.dataxow.helper.FileHelper
 import com.dataxow.helper.ImageHelper
 import com.dataxow.ui.components.ipSelector
@@ -63,7 +62,6 @@ fun mainWindow(
                         val result = chooser.showOpenDialog(null)
                         if (result == JFileChooser.APPROVE_OPTION) {
                             setProjectPath(chooser.selectedFile.absolutePath)
-                            AppData.config.project = projectPath
                         }
                     }) {
                         Text("Select Folder")
