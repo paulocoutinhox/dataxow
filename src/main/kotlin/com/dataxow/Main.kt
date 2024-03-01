@@ -49,6 +49,8 @@ fun main() = application {
     var videoPath by remember { mutableStateOf<String?>(null) }
     var secondWindowOpen by remember { mutableStateOf(false) }
 
+    mediaPlayer.controls().repeat = true
+
     // Main window
     Window(onCloseRequest = ::exitApplication, title = "Control Window") {
         Column(modifier = Modifier.padding(16.dp)) {
