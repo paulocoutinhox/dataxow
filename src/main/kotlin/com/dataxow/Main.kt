@@ -25,6 +25,7 @@ import org.jetbrains.skia.ColorAlphaType
 import org.jetbrains.skia.ImageInfo
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory
 import uk.co.caprica.vlcj.player.base.MediaPlayer
+import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer
 import uk.co.caprica.vlcj.player.embedded.videosurface.CallbackVideoSurface
 import uk.co.caprica.vlcj.player.embedded.videosurface.VideoSurfaceAdapters
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat
@@ -36,6 +37,11 @@ import java.awt.Frame
 import java.io.File
 import java.nio.ByteBuffer
 import org.jetbrains.skia.Image as SkiaImage
+
+val adapter = RenderCallbackAdapter(800, 600)
+val videoSurface = CallbackVideoSurface(adapter, adapter, true, VideoSurfaceAdapters.getVideoSurfaceAdapter())
+val mediaPlayerFactory = MediaPlayerFactory()
+val mediaPlayer: EmbeddedMediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer()
 
 fun main() = application {
     var text by remember { mutableStateOf("Your text here") }
@@ -94,6 +100,7 @@ fun main() = application {
                 if (videoPath != null) {
                     videoPlayerImpl(
                         videoPath!!,
+                        adapter,
                         Modifier.fillMaxSize()
                             .aspectRatio(16f / 9f, matchHeightConstraintsFirst = true)
                             .align(Alignment.Center)
@@ -135,23 +142,28 @@ fun main() = application {
 @Composable
 fun videoPlayerImpl(
     url: String,
+    adapter: RenderCallbackAdapter,
     modifier: Modifier,
 ) {
-    val mediaPlayerFactory = MediaPlayerFactory()
-    val mediaPlayer = mediaPlayerFactory.mediaPlayers().newEmbeddedMediaPlayer()
-    
-    val adapter = remember { RenderCallbackAdapter(640, 480) }
-    val videoSurface = CallbackVideoSurface(adapter, adapter, true, VideoSurfaceAdapters.getVideoSurfaceAdapter())
-
     mediaPlayer.videoSurface().set(videoSurface)
     mediaPlayer.media().play(url)
 
     Box(modifier = Modifier.fillMaxSize()) {
-        adapter.imageBitmap?.let { bitmap ->
-            Image(bitmap = bitmap, contentDescription = "Video Frame")
-        }
+        videoFrame(adapter.imageBitmap)
     }
 }
+
+@Composable
+fun videoFrame(imageBitmap: ImageBitmap?) {
+    imageBitmap?.let {
+        Image(
+            bitmap = it,
+            contentDescription = "Video Frame",
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
 
 class RenderCallbackAdapter(private val width: Int, private val height: Int) : BufferFormatCallback, RenderCallback {
     var imageBitmap by mutableStateOf<ImageBitmap?>(null)
@@ -166,16 +178,25 @@ class RenderCallbackAdapter(private val width: Int, private val height: Int) : B
     }
 
     override fun display(mediaPlayer: MediaPlayer?, nativeBuffers: Array<ByteBuffer>, bufferFormat: BufferFormat) {
-        val buffer = nativeBuffers[0]
-        buffer.rewind()
+        val fixedImage = false
 
-        val size = bufferFormat.width * bufferFormat.height * 4
-        if (buffer.isDirect) {
-            val byteArray = ByteArray(size)
-            buffer.get(byteArray)
-            updateImageBitmap(byteArray, bufferFormat.width, bufferFormat.height)
+        if (fixedImage) {
+            val testImage = File("/Users/paulo/Downloads/pexels.webp")
+            val bitmap = SkiaImage.makeFromEncoded(testImage.readBytes())
+            imageBitmap = bitmap.toComposeImageBitmap()
         } else {
-            updateImageBitmap(buffer.array(), bufferFormat.width, bufferFormat.height)
+            val buffer = nativeBuffers[0]
+            buffer.rewind()
+
+            val size = bufferFormat.width * bufferFormat.height * 4
+
+            if (buffer.isDirect) {
+                val byteArray = ByteArray(size)
+                buffer.get(byteArray)
+                updateImageBitmap(byteArray, bufferFormat.width, bufferFormat.height)
+            } else {
+                updateImageBitmap(buffer.array(), bufferFormat.width, bufferFormat.height)
+            }
         }
     }
 
@@ -184,6 +205,7 @@ class RenderCallbackAdapter(private val width: Int, private val height: Int) : B
             allocPixels(ImageInfo.makeS32(width, height, ColorAlphaType.PREMUL))
             installPixels(imageInfo, pixelData, (width * 4))
         }
+
         imageBitmap = bitmap.asComposeImageBitmap()
     }
 }
