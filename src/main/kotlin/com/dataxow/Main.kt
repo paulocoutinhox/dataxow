@@ -98,8 +98,10 @@ fun main() = application {
                     )
                 }
                 if (videoPath != null) {
+                    mediaPlayer.videoSurface().set(videoSurface)
+                    mediaPlayer.media().play(videoPath)
+
                     videoPlayerImpl(
-                        videoPath!!,
                         adapter,
                         Modifier.fillMaxSize()
                             .aspectRatio(16f / 9f, matchHeightConstraintsFirst = true)
@@ -141,14 +143,10 @@ fun main() = application {
 
 @Composable
 fun videoPlayerImpl(
-    url: String,
     adapter: RenderCallbackAdapter,
     modifier: Modifier,
 ) {
-    mediaPlayer.videoSurface().set(videoSurface)
-    mediaPlayer.media().play(url)
-
-    Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = modifier) {
         videoFrame(adapter.imageBitmap)
     }
 }
