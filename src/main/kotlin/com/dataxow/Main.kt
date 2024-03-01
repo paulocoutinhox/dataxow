@@ -1,16 +1,19 @@
 package com.dataxow
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -18,18 +21,21 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
-import androidx.compose.ui.window.WindowPosition
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
+import com.dataxow.helper.FileHelper
+import com.dataxow.helper.ImageHelper
+import com.dataxow.helper.SystemHelper
 import com.dataxow.net.RequestData
 import com.dataxow.net.ResponseData
 import com.dataxow.renderer.RenderCallbackAdapter
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.qrcode.QRCodeWriter
+import com.dataxow.ui.components.autoSizeText
+import com.dataxow.ui.components.ipSelector
+import com.dataxow.ui.components.videoPlayer
+import com.dataxow.ui.helper.monitorWatcher
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -40,18 +46,11 @@ import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.delay
 import kotlinx.serialization.json.Json
-import org.jetbrains.skia.Bitmap
-import org.jetbrains.skia.Rect
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer
 import uk.co.caprica.vlcj.player.embedded.videosurface.CallbackVideoSurface
 import uk.co.caprica.vlcj.player.embedded.videosurface.VideoSurfaceAdapters
-import java.awt.FileDialog
-import java.awt.Frame
-import java.awt.GraphicsDevice
-import java.awt.GraphicsEnvironment
 import java.io.File
 import java.net.InetAddress
 import java.net.NetworkInterface
@@ -117,7 +116,7 @@ fun main() = application {
                         }
                     }
                     Button(onClick = {
-                        val file = selectFile("Select Image", "image/*")
+                        val file = FileHelper.selectFile("Select Image", "image/*")
                         imagePath = file?.absolutePath
                         videoPath = null // Reset video path to stop video if playing
                         secondWindowOpen = true
@@ -125,7 +124,7 @@ fun main() = application {
                         Text("Select Image")
                     }
                     Button(onClick = {
-                        val file = selectFile("Select Video", "video/*")
+                        val file = FileHelper.selectFile("Select Video", "video/*")
                         videoPath = file?.absolutePath
                         imagePath = null // Reset image path to remove image if displayed
                         secondWindowOpen = true
@@ -142,7 +141,9 @@ fun main() = application {
                                 if (!serverStatus) {
                                     startServer(serverHost, serverPort.toInt())
                                     qrCodeBitmap =
-                                        generateQRCode("http://$serverHost:$serverPort/rcontrol/?api_url=http://$serverHost:$serverPort")
+                                        ImageHelper.generateQRCode(
+                                            "http://$serverHost:$serverPort/rcontrol/?api_url=http://$serverHost:$serverPort",
+                                        )
                                     serverStatus = true
                                 } else {
                                     stopServer()
@@ -163,7 +164,7 @@ fun main() = application {
     }
 
     monitorWatcher { isMultiMonitor, screenDevice ->
-        windowState = getMonitorState(isMultiMonitor, screenDevice)
+        windowState = SystemHelper.getMonitorState(isMultiMonitor, screenDevice)
     }
 
     // Second window logic
@@ -171,7 +172,7 @@ fun main() = application {
         Window(
             onCloseRequest = { secondWindowOpen = false },
             title = "Player",
-            undecorated = true,
+            undecorated = false,
             state = windowState
         ) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -187,29 +188,28 @@ fun main() = application {
                     mediaPlayer.videoSurface().set(videoSurface)
                     mediaPlayer.media().play(videoPath)
 
-                    videoPlayerImpl(
+                    videoPlayer(
                         adapter,
                         Modifier.fillMaxSize()
                     )
                 }
-                Text(
+                autoSizeText(
                     text = text,
                     style = TextStyle(
                         fontFamily = fontPoppinsBold,
                         color = Color.White,
-                        fontSize = 60.sp,
                         fontWeight = FontWeight.Bold,
                         background = Color.Transparent,
                         textAlign = TextAlign.Center,
                     ),
+                    maxFontSize = 200.sp,
                     modifier = Modifier.align(Alignment.Center).wrapContentSize(Alignment.Center)
                 )
-                Text(
+                autoSizeText(
                     text = text,
                     style = TextStyle(
                         fontFamily = fontPoppinsBold,
                         color = Color.Black,
-                        fontSize = 60.sp,
                         fontWeight = FontWeight.Bold,
                         background = Color.Transparent,
                         textAlign = TextAlign.Center,
@@ -220,6 +220,7 @@ fun main() = application {
 
                             )
                     ),
+                    maxFontSize = 200.sp,
                     modifier = Modifier.align(Alignment.Center).wrapContentSize(Alignment.Center)
                 )
             }
@@ -227,116 +228,6 @@ fun main() = application {
     }
 }
 
-@Composable
-fun ipSelector(items: List<String>, selectedItem: String, onItemSelected: (String) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    val currentSelectedItem = items.firstOrNull { it == selectedItem } ?: items.firstOrNull()
-
-    Box {
-        TextField(
-            value = currentSelectedItem ?: "",
-            onValueChange = {},
-            readOnly = true,
-            trailingIcon = {
-                Icon(
-                    Icons.Filled.ArrowDropDown,
-                    contentDescription = "Dropdown",
-                    modifier = Modifier.clickable { expanded = !expanded }
-                )
-            }
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            items.forEach { label ->
-                DropdownMenuItem(onClick = {
-                    onItemSelected(label)
-                    expanded = false
-                }) {
-                    Text(text = label)
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun videoPlayerImpl(
-    adapter: RenderCallbackAdapter,
-    modifier: Modifier,
-) {
-    Box(modifier = modifier) {
-        videoFrame(adapter.imageBitmap)
-    }
-}
-
-@Composable
-fun videoFrame(imageBitmap: ImageBitmap?) {
-    imageBitmap?.let {
-        Image(
-            bitmap = it,
-            contentScale = ContentScale.Crop,
-            contentDescription = "Video Frame",
-            modifier = Modifier.fillMaxSize()
-        )
-    }
-}
-
-@Composable
-fun monitorWatcher(onMonitorChange: (isMultiMonitor: Boolean, device: GraphicsDevice?) -> Unit) {
-    var lastMonitorCount by remember { mutableStateOf(-1) }
-
-    LaunchedEffect(key1 = "monitorWatcher") {
-        while (true) {
-            val graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment()
-            val screenDevices = graphicsEnvironment.screenDevices
-            val currentMonitorCount = screenDevices.size
-
-            val isMultiMonitor = currentMonitorCount > 1
-            val screenDevice = if (isMultiMonitor) screenDevices[1] else screenDevices.getOrNull(0)
-
-            if (lastMonitorCount != currentMonitorCount) {
-                onMonitorChange(isMultiMonitor, screenDevice)
-                lastMonitorCount = currentMonitorCount
-            }
-            delay(1000)
-        }
-    }
-}
-
-fun getMonitorState(isMultiMonitor: Boolean, device: GraphicsDevice?): WindowState {
-    if (isMultiMonitor) {
-        device?.let {
-            val configuration = it.defaultConfiguration
-            val bounds = configuration.bounds
-
-            return WindowState(
-                size = DpSize(bounds.width.dp, bounds.height.dp),
-                position = WindowPosition.Absolute(x = bounds.x.dp, y = bounds.y.dp)
-            )
-        }
-    }
-
-    val devices = GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
-    val primaryMonitorBounds = devices[0].defaultConfiguration.bounds
-    val windowWidth = 320.dp.value.toInt()
-    val windowHeight = 160.dp.value.toInt()
-    val positionX = (primaryMonitorBounds.width - windowWidth).dp
-    val positionY = (primaryMonitorBounds.height - windowHeight).dp
-
-    return WindowState(
-        size = DpSize(320.dp, 160.dp),
-        position = WindowPosition.Absolute(x = positionX, y = positionY)
-    )
-}
-
-fun selectFile(title: String, fileType: String): File? {
-    val fileDialog = FileDialog(Frame(), title, FileDialog.LOAD)
-    fileDialog.isVisible = true
-    return fileDialog.files.firstOrNull()
-}
 
 fun startServer(host: String, port: Int) {
     server = embeddedServer(Netty, host = host, port = port) {
@@ -388,31 +279,4 @@ fun getLocalIPAddresses(): List<String> {
     return NetworkInterface.getNetworkInterfaces().asSequence().flatMap { ni ->
         ni.inetAddresses.asSequence().filter { it.isSiteLocalAddress && it is InetAddress }.map { it.hostAddress }
     }.toList()
-}
-
-fun generateQRCode(data: String): ImageBitmap {
-    val writer = QRCodeWriter()
-    val bitMatrix = writer.encode(data, BarcodeFormat.QR_CODE, 512, 512)
-    val width = bitMatrix.width
-    val height = bitMatrix.height
-    val bitmap = Bitmap()
-    bitmap.allocN32Pixels(width, height)
-
-    val canvas = org.jetbrains.skia.Canvas(bitmap)
-    val paint = org.jetbrains.skia.Paint().apply {
-        color = org.jetbrains.skia.Color.BLACK
-        isAntiAlias = false
-    }
-
-    canvas.clear(org.jetbrains.skia.Color.WHITE)
-
-    for (y in 0 until height) {
-        for (x in 0 until width) {
-            if (bitMatrix[x, y]) {
-                canvas.drawRect(Rect.makeXYWH(x.toFloat(), y.toFloat(), 1f, 1f), paint)
-            }
-        }
-    }
-
-    return bitmap.asComposeImageBitmap()
 }
