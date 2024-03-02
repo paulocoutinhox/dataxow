@@ -26,7 +26,6 @@ If applicable, add screenshots to help explain your problem.
 **System (please complete the following information):**
  - OS: [e.g. Ubuntu]
  - Version [e.g. 18.04]
- - Target [e.g. cxx]
 
 **Additional context**
 Add any other context about the problem here.

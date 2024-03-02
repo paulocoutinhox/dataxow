@@ -31,8 +31,25 @@ jobs:
       - name: Verify
         run: java -version
 
+      - name: Install application certificate
+        uses: apple-actions/import-codesign-certs@v2
+        if: runner.os == 'macOS'
+        with:
+          keychain: ${{ github.run_id }}
+          keychain-password: ${{ github.run_id }}
+          p12-file-base64: ${{ secrets.MACOS_CERTIFICATE }}
+          p12-password: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+
       - name: Build
-        run: ./gradlew package
+        run: ./gradlew clean package
+
+      - name: Notarize
+        if: runner.os == 'macOS'
+        env:
+          NOTARIZATION_APPLE_ID: ${{ secrets.NOTARIZATION_USERNAME }}
+          NOTARIZATION_TEAM_ID: ${{ secrets.NOTARIZATION_TEAM_ID }}
+          NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
+        run: ./gradlew notarizeDmg
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v2

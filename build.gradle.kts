@@ -58,6 +58,18 @@ compose.desktop {
             macOS {
                 iconFile.set(project.file("src/main/resources/icons/app.icns"))
                 bundleID = "com.dataxow.app"
+
+                signing {
+                    sign.set(true)
+                    identity.set("Developer ID Application: Paulo Coutinho (99AHAA343Q)")
+                }
+
+                notarization {
+                    val providers = project.providers
+                    appleID.set(providers.environmentVariable("NOTARIZATION_APPLE_ID"))
+                    teamID.set(providers.environmentVariable("NOTARIZATION_TEAM_ID"))
+                    password.set(providers.environmentVariable("NOTARIZATION_PASSWORD"))
+                }
             }
             linux {
                 iconFile.set(project.file("src/main/resources/icons/app.png"))
