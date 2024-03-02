@@ -28,6 +28,7 @@ import kotlinx.serialization.json.Json
 
 fun main() = application {
     var windowState by remember { mutableStateOf(WindowState()) }
+    var forceUpdateWindowState by remember { mutableStateOf(false) }
 
     var projectPath by remember { mutableStateOf(AppData.config.project) }
 
@@ -73,6 +74,8 @@ fun main() = application {
                 projectPath = it
                 AppData.config.project = it
             },
+            forceUpdateWindowState = forceUpdateWindowState,
+            setForceUpdateWindowState = { forceUpdateWindowState = it },
             text = text,
             setText = { text = it },
             imagePath = imagePath,
@@ -99,7 +102,7 @@ fun main() = application {
     }
 
     // Player window
-    monitorWatcher { isMultiMonitor, screenDevice ->
+    monitorWatcher(forceUpdateWindowState) { isMultiMonitor, screenDevice ->
         windowState = SystemHelper.getMonitorState(isMultiMonitor, screenDevice)
     }
 

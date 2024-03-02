@@ -25,6 +25,8 @@ fun mainWindow(
     applicationScope: ApplicationScope,
     projectPath: String,
     setProjectPath: (String) -> Unit,
+    forceUpdateWindowState: Boolean,
+    setForceUpdateWindowState: (Boolean) -> Unit,
     text: String,
     setText: (String) -> Unit,
     imagePath: String?,
@@ -66,6 +68,9 @@ fun mainWindow(
                     }) {
                         Text("Select Folder")
                     }
+                }
+                Button(onClick = { setForceUpdateWindowState(!forceUpdateWindowState) }) {
+                    Text("Refresh Screens")
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TextField(
