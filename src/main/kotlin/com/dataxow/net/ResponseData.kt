@@ -2,9 +2,11 @@ package com.dataxow.net
 
 import kotlinx.serialization.Serializable
 
+object NoDataType
+
 @Serializable
-data class ResponseData(
+data class ResponseData<T>(
     val success: Boolean,
     val message: String? = null,
-    val data: Map<String, String>? = null
+    val data: T? = null
 )

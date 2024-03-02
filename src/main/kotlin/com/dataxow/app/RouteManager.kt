@@ -1,5 +1,6 @@
 package com.dataxow.app
 
+import com.dataxow.route.handleGetImage
 import com.dataxow.route.handleModuleCall
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
@@ -10,5 +11,8 @@ fun Routing.configureRoutes() {
 
     post("/module/call") {
         call.handleModuleCall()
+    }
+    get("/image") {
+        call.handleGetImage()
     }
 }

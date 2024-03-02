@@ -7,7 +7,7 @@ import useSharedState from '../states/app-state';
 
 const { systemReady, apiUrl } = useSharedState();
 
-const playerText = ref("Jesus é bom demais! É isso aí povão! Deus te abençoe!");
+const playerText = ref("DataXow Sample Text");
 const btPlayerClearText = ref(null);
 
 watch([systemReady], ([value]) => {

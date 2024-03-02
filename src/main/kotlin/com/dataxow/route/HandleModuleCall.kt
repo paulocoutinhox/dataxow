@@ -10,6 +10,7 @@ suspend fun ApplicationCall.handleModuleCall() {
     when (requestData.func) {
         "modules.player.update" -> handlePlayerUpdate(requestData)
         "modules.system.settings" -> handleSystemSettings()
+        "modules.image.list" -> handleImageList(requestData)
         else -> handleNotFound()
     }
 }
