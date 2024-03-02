@@ -1,0 +1,48 @@
+name: Build
+
+on:
+  push:
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'extras/images/**'
+
+jobs:
+  build:
+    name: ${{ matrix.config.name }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+        - { name: "macOS", os: macos-latest, extension: "dmg" }
+        - { name: "Ubuntu", os: ubuntu-latest, extension: "deb" }
+        - { name: "Windows", os: windows-latest, extension: "msi" }
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: "corretto"
+          java-version: "17"
+
+      - name: Verify
+        run: java -version
+
+      - name: Build
+        run: ./gradlew package
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.config.name }}-artifact
+          path: build/compose/binaries/main/*/*.${{ matrix.config.extension }}
+
+      - name: Release
+        id: upload-release-asset
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: build/compose/binaries/main/*/*.${{ matrix.config.extension }}
