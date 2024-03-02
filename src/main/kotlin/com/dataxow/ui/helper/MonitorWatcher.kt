@@ -1,28 +1,33 @@
 package com.dataxow.ui.helper
 
 import androidx.compose.runtime.*
+import com.dataxow.app.AppData
 import kotlinx.coroutines.delay
 import java.awt.GraphicsDevice
 import java.awt.GraphicsEnvironment
 
 @Composable
-fun monitorWatcher(forceUpdate: Boolean, onMonitorChange: (isMultiMonitor: Boolean, device: GraphicsDevice?) -> Unit) {
-    var lastMonitorCount by remember { mutableStateOf(-1) }
-    var lastForceUpdate by remember { mutableStateOf(false) }
+fun systemScreenWatcher(onScreenChange: (isMultiScreen: Boolean, device: GraphicsDevice?) -> Unit) {
+    var lastScreenCount by remember { mutableStateOf(-1) }
 
-    LaunchedEffect(key1 = "monitorWatcher", key2 = forceUpdate) {
-        val graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment()
-        val screenDevices = graphicsEnvironment.screenDevices
-        val currentMonitorCount = screenDevices.size
-        val isMultiMonitor = currentMonitorCount > 1
-        val screenDevice = if (isMultiMonitor) screenDevices[1] else screenDevices.getOrNull(0)
+    LaunchedEffect(key1 = "SystemScreenWatcher") {
+        while (true) {
+            val graphicsEnvironment = GraphicsEnvironment.getLocalGraphicsEnvironment()
+            val screenDevices = graphicsEnvironment.screenDevices
+            val currentScreenCount = screenDevices.size
+            val isMultiScreen = currentScreenCount > 1
+            val screenDevice = if (isMultiScreen) screenDevices[1] else screenDevices.getOrNull(0)
 
-        if (lastMonitorCount != currentMonitorCount || lastForceUpdate != forceUpdate) {
-            onMonitorChange(isMultiMonitor, screenDevice)
-            lastMonitorCount = currentMonitorCount
-            lastForceUpdate = forceUpdate
+            if (lastScreenCount != currentScreenCount) {
+                AppData.isMultiScreen = isMultiScreen
+                AppData.playerScreenDevice = screenDevice
+
+                onScreenChange(isMultiScreen, screenDevice)
+
+                lastScreenCount = currentScreenCount
+            }
+
+            delay(1000)
         }
-
-        delay(1000)
     }
 }

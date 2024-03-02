@@ -12,9 +12,26 @@ import uk.co.caprica.vlcj.factory.MediaPlayerFactory
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer
 import uk.co.caprica.vlcj.player.embedded.videosurface.CallbackVideoSurface
 import uk.co.caprica.vlcj.player.embedded.videosurface.VideoSurfaceAdapters
+import java.awt.GraphicsDevice
 
 object AppData {
     private val mediaPlayerFactory = MediaPlayerFactory()
+
+    var isMultiScreen = false
+        @Synchronized
+        get() = field
+        @Synchronized
+        set(value) {
+            field = value
+        }
+
+    var playerScreenDevice: GraphicsDevice? = null
+        @Synchronized
+        get() = field
+        @Synchronized
+        set(value) {
+            field = value
+        }
 
     val config = ConfigManager.loadConfig()
 
@@ -35,6 +52,8 @@ object AppData {
     var onTextUpdate: ((String) -> Unit)? = null
     var onImageUpdate: ((String) -> Unit)? = null
     var onVideoUpdate: ((String) -> Unit)? = null
+
+    var onSystemScreenUpdates: ((isMultiScreen: Boolean, device: GraphicsDevice?) -> Unit)? = null
 
     val colorPalette = lightColors(
         primary = Color(0xFF0d6efd),

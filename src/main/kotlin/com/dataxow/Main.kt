@@ -13,7 +13,7 @@ import com.dataxow.app.ConfigManager
 import com.dataxow.app.configureRoutes
 import com.dataxow.helper.NetHelper
 import com.dataxow.helper.SystemHelper
-import com.dataxow.ui.helper.monitorWatcher
+import com.dataxow.ui.helper.systemScreenWatcher
 import com.dataxow.ui.window.mainWindow
 import com.dataxow.ui.window.playerWindow
 import io.ktor.http.*
@@ -28,7 +28,6 @@ import kotlinx.serialization.json.Json
 
 fun main() = application {
     var windowState by remember { mutableStateOf(WindowState()) }
-    var forceUpdateWindowState by remember { mutableStateOf(false) }
 
     var projectPath by remember { mutableStateOf(AppData.config.project) }
 
@@ -61,6 +60,10 @@ fun main() = application {
         playerWindowOpen = true
     }
 
+    AppData.onSystemScreenUpdates = { isMultiScreen, screenDevice ->
+        windowState = SystemHelper.getMonitorState(isMultiScreen, screenDevice)
+    }
+
     AppData.mediaPlayer.controls().repeat = true
 
     // Main window
@@ -74,8 +77,9 @@ fun main() = application {
                 projectPath = it
                 AppData.config.project = it
             },
-            forceUpdateWindowState = forceUpdateWindowState,
-            setForceUpdateWindowState = { forceUpdateWindowState = it },
+            setForceUpdateWindowState = {
+                AppData.onSystemScreenUpdates?.invoke(AppData.isMultiScreen, AppData.playerScreenDevice)
+            },
             text = text,
             setText = { text = it },
             imagePath = imagePath,
@@ -101,11 +105,12 @@ fun main() = application {
         )
     }
 
-    // Player window
-    monitorWatcher(forceUpdateWindowState) { isMultiMonitor, screenDevice ->
-        windowState = SystemHelper.getMonitorState(isMultiMonitor, screenDevice)
+    // System Screen Watcher
+    systemScreenWatcher { isMultiScreen, screenDevice ->
+        AppData.onSystemScreenUpdates?.invoke(isMultiScreen, screenDevice)
     }
 
+    // Player window
     if (playerWindowOpen) {
         playerWindow(
             windowState = windowState,

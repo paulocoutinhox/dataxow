@@ -25,12 +25,12 @@ class SystemHelper {
             val devices = GraphicsEnvironment.getLocalGraphicsEnvironment().screenDevices
             val primaryMonitorBounds = devices[0].defaultConfiguration.bounds
             val windowWidth = 320.dp.value.toInt()
-            val windowHeight = 160.dp.value.toInt()
+            val windowHeight = 240.dp.value.toInt()
             val positionX = (primaryMonitorBounds.width - windowWidth).dp
             val positionY = (primaryMonitorBounds.height - windowHeight).dp
 
             return WindowState(
-                size = DpSize(320.dp, 160.dp),
+                size = DpSize(320.dp, 240.dp),
                 position = WindowPosition.Absolute(x = positionX, y = positionY)
             )
         }

@@ -25,8 +25,7 @@ fun mainWindow(
     applicationScope: ApplicationScope,
     projectPath: String,
     setProjectPath: (String) -> Unit,
-    forceUpdateWindowState: Boolean,
-    setForceUpdateWindowState: (Boolean) -> Unit,
+    setForceUpdateWindowState: () -> Unit,
     text: String,
     setText: (String) -> Unit,
     imagePath: String?,
@@ -69,17 +68,18 @@ fun mainWindow(
                         Text("Select Folder")
                     }
                 }
-                Button(onClick = { setForceUpdateWindowState(!forceUpdateWindowState) }) {
+                Button(onClick = { setForceUpdateWindowState() }) {
                     Text("Refresh Screens")
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TextField(
                         value = text,
-                        onValueChange = { },
+                        onValueChange = {
+                            setText(it)
+                        },
                         label = { Text("Text to display") }
                     )
                     Button(onClick = {
-                        setText(text)
                         setPlayerWindowOpen(true)
                     }) {
                         Text("Update Text")
