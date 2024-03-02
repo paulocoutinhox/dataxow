@@ -5,5 +5,5 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 
 suspend fun ApplicationCall.handleNotFound() {
-    respond(HttpStatusCode.NotFound, "Method Not Found")
+    respond(HttpStatusCode.NotFound, "Not Found")
 }

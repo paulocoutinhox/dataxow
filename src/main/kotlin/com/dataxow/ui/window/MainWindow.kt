@@ -70,10 +70,13 @@ fun mainWindow(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     TextField(
                         value = text,
-                        onValueChange = { setText(it) },
+                        onValueChange = { },
                         label = { Text("Text to display") }
                     )
-                    Button(onClick = { setPlayerWindowOpen(true) }) {
+                    Button(onClick = {
+                        setText(text)
+                        setPlayerWindowOpen(true)
+                    }) {
                         Text("Update Text")
                     }
                 }
@@ -104,7 +107,7 @@ fun mainWindow(
                                 startServer(serverHost, serverPort.toInt())
                                 setQrCodeBitmap(
                                     ImageHelper.generateQRCode(
-                                        "http://$serverHost:$serverPort/rcontrol/?api_url=http://$serverHost:$serverPort",
+                                        "http://$serverHost:$serverPort/rcontrol/?api=http://$serverHost:$serverPort",
                                     )
                                 )
                                 setServerStatus(true)

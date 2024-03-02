@@ -2,8 +2,6 @@ package com.dataxow.net
 
 import kotlinx.serialization.Serializable
 
-object NoDataType
-
 @Serializable
 data class ResponseData<T>(
     val success: Boolean,

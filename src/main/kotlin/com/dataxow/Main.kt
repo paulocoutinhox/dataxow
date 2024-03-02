@@ -16,6 +16,7 @@ import com.dataxow.helper.SystemHelper
 import com.dataxow.ui.helper.monitorWatcher
 import com.dataxow.ui.window.mainWindow
 import com.dataxow.ui.window.playerWindow
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -44,6 +45,19 @@ fun main() = application {
 
     AppData.onTextUpdate = { newText ->
         text = newText
+        playerWindowOpen = true
+    }
+
+    AppData.onImageUpdate = { newImage ->
+        imagePath = newImage
+        videoPath = null
+        playerWindowOpen = true
+    }
+
+    AppData.onVideoUpdate = { newVideo ->
+        videoPath = newVideo
+        imagePath = null
+        playerWindowOpen = true
     }
 
     AppData.mediaPlayer.controls().repeat = true
@@ -115,6 +129,13 @@ fun startServer(host: String, port: Int) {
     AppData.server = embeddedServer(Netty, host = host, port = port) {
         install(CORS) {
             anyHost()
+            allowCredentials = true
+            allowNonSimpleContentTypes = true
+            allowHeader(HttpHeaders.AccessControlAllowHeaders)
+            allowHeader(HttpHeaders.ContentType)
+            allowMethod(HttpMethod.Options)
+            allowMethod(HttpMethod.Post)
+            exposeHeader(HttpHeaders.AccessControlAllowOrigin)
         }
         install(ContentNegotiation) {
             json(Json {

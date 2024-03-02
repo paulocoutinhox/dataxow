@@ -7,7 +7,7 @@ onMounted(() => {
     const { setSystemReady, setSystemSettings, setApiUrl } = useSharedState();
 
     const urlParams = new URLSearchParams(window.location.search);
-    const apiUrl = urlParams.get('api_url');
+    const apiUrl = urlParams.get('api');
 
     if (apiUrl) {
         setApiUrl(apiUrl);

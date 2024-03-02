@@ -33,6 +33,8 @@ object AppData {
     )
 
     var onTextUpdate: ((String) -> Unit)? = null
+    var onImageUpdate: ((String) -> Unit)? = null
+    var onVideoUpdate: ((String) -> Unit)? = null
 
     val colorPalette = lightColors(
         primary = Color(0xFF0d6efd),

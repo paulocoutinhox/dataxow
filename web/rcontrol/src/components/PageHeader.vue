@@ -16,6 +16,11 @@
                         </router-link>
                     </li>
                     <li class="nav-item">
+                        <router-link :to="{ name: 'ImageList' }" class="nav-link px-2 link-body-emphasis">
+                            Images
+                        </router-link>
+                    </li>
+                    <li class="nav-item">
                         <router-link :to="{ name: 'About' }" class="nav-link px-2 link-body-emphasis">
                             About
                         </router-link>

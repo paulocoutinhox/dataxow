@@ -47,9 +47,9 @@ fun playerWindow(
         alwaysOnTop = true
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            imagePath?.let {
+            if (imagePath != null) {
                 Image(
-                    bitmap = Image.makeFromEncoded(File(it).readBytes()).toComposeImageBitmap(),
+                    bitmap = Image.makeFromEncoded(File(imagePath).readBytes()).toComposeImageBitmap(),
                     contentDescription = null,
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop
