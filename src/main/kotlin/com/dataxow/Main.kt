@@ -30,7 +30,7 @@ fun main() = application {
 
     var projectPath by remember { mutableStateOf(AppData.config.project) }
 
-    var text by remember { mutableStateOf("DataXow Sample\nText") }
+    var text by remember { mutableStateOf("DataXow\nSample\nText") }
     var imagePath by remember { mutableStateOf<String?>(null) }
     var videoPath by remember { mutableStateOf<String?>(null) }
     var playerWindowOpen by remember { mutableStateOf(false) }

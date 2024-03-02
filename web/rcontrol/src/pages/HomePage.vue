@@ -7,7 +7,7 @@ import useSharedState from '../states/app-state';
 
 const { systemReady, apiUrl } = useSharedState();
 
-const playerText = ref("DataXow Sample\nText");
+const playerText = ref("DataXow\nSample\nText");
 const btPlayerClearText = ref(null);
 
 watch([systemReady], ([value]) => {
