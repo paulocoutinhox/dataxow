@@ -48,6 +48,7 @@ jobs:
       - name: Notarize
         if: runner.os == 'macOS'
         env:
+          SIGNING_IDENTITY: ${{ secrets.SIGNING_IDENTITY }}
           NOTARIZATION_APPLE_ID: ${{ secrets.NOTARIZATION_USERNAME }}
           NOTARIZATION_TEAM_ID: ${{ secrets.NOTARIZATION_TEAM_ID }}
           NOTARIZATION_PASSWORD: ${{ secrets.NOTARIZATION_PASSWORD }}
