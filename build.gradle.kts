@@ -60,8 +60,9 @@ compose.desktop {
                 bundleID = "com.dataxow.app"
 
                 signing {
+                    val providers = project.providers
                     sign.set(true)
-                    identity.set("Developer ID Application: Paulo Coutinho (99AHAA343Q)")
+                    identity.set(providers.environmentVariable("SIGNING_IDENTITY"))
                 }
 
                 notarization {

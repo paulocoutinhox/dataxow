@@ -41,6 +41,8 @@ jobs:
           p12-password: ${{ secrets.MACOS_CERTIFICATE_PWD }}
 
       - name: Build
+        env:
+          SIGNING_IDENTITY: ${{ secrets.SIGNING_IDENTITY }}
         run: ./gradlew clean package
 
       - name: Notarize

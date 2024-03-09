@@ -6,6 +6,7 @@ This is a complete datashow application that render text, image and video on oth
 
 macOS:
 
+- SIGNING_IDENTITY
 - NOTARIZATION_APPLE_ID
 - NOTARIZATION_TEAM_ID
 - NOTARIZATION_PASSWORD
