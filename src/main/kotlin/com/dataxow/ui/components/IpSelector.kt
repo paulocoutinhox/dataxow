@@ -10,12 +10,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 
 @Composable
-fun ipSelector(items: List<String>, selectedItem: String, onItemSelected: (String) -> Unit) {
+fun ipSelector(modifier: Modifier, items: List<String>, selectedItem: String, onItemSelected: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     val currentSelectedItem = items.firstOrNull { it == selectedItem } ?: items.firstOrNull()
 
-    Box {
+    Box(modifier = modifier) {
         TextField(
+            modifier = Modifier.fillMaxWidth(),
             value = currentSelectedItem ?: "",
             onValueChange = {},
             readOnly = true,
@@ -28,9 +29,9 @@ fun ipSelector(items: List<String>, selectedItem: String, onItemSelected: (Strin
             }
         )
         DropdownMenu(
+            modifier = Modifier.fillMaxWidth(),
             expanded = expanded,
-            onDismissRequest = { expanded = false },
-            modifier = Modifier.fillMaxWidth()
+            onDismissRequest = { expanded = false }
         ) {
             items.forEach { label ->
                 DropdownMenuItem(onClick = {

@@ -81,11 +81,19 @@ fun main() = application {
                 AppData.onSystemScreenUpdates?.invoke(AppData.isMultiScreen, AppData.playerScreenDevice)
             },
             text = text,
-            setText = { text = it },
+            setText = {
+                text = it
+            },
             imagePath = imagePath,
-            setImagePath = { imagePath = it },
+            setImagePath = {
+                videoPath = null
+                imagePath = it
+            },
             videoPath = videoPath,
-            setVideoPath = { videoPath = it },
+            setVideoPath = {
+                imagePath = null
+                videoPath = it
+            },
             playerWindowOpen = playerWindowOpen,
             setPlayerWindowOpen = { playerWindowOpen = it },
             ips = NetHelper.getLocalIPAddresses(),

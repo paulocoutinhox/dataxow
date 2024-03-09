@@ -56,6 +56,6 @@ object AppData {
     var onSystemScreenUpdates: ((isMultiScreen: Boolean, device: GraphicsDevice?) -> Unit)? = null
 
     val colorPalette = lightColors(
-        primary = Color(0xFF0d6efd),
+        primary = Color(0xFF3F51B5),
     )
 }

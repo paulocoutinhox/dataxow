@@ -1,24 +1,21 @@
 package com.dataxow.ui.window
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Tab
+import androidx.compose.material.TabRow
+import androidx.compose.material.TabRowDefaults.Indicator
+import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
-import com.dataxow.helper.FileHelper
-import com.dataxow.helper.ImageHelper
-import com.dataxow.ui.components.ipSelector
-import javax.swing.JFileChooser
+import com.dataxow.enum.MainTab
+import com.dataxow.ui.content.*
 
 @Composable
 fun mainWindow(
@@ -48,89 +45,109 @@ fun mainWindow(
 ) {
     Window(onCloseRequest = applicationScope::exitApplication, title = "DataXow") {
         Scaffold {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row {
-                    TextField(
-                        value = projectPath,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text("Project Folder") }
-                    )
-                    Button(onClick = {
-                        val chooser = JFileChooser().apply {
-                            fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
-                        }
-                        val result = chooser.showOpenDialog(null)
-                        if (result == JFileChooser.APPROVE_OPTION) {
-                            setProjectPath(chooser.selectedFile.absolutePath)
-                        }
-                    }) {
-                        Text("Select Folder")
-                    }
-                }
-                Button(onClick = { setForceUpdateWindowState() }) {
-                    Text("Refresh Screens")
-                }
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    var currentText by remember { mutableStateOf(text) }
+            Column {
+                var selectedTab by remember { mutableStateOf(MainTab.Home) }
 
-                    TextField(
-                        value = currentText,
-                        onValueChange = {
-                            currentText = it
+                TabRow(
+                    selectedTabIndex = selectedTab.ordinal,
+                    indicator = { tabPositions ->
+                        Indicator(
+                            Modifier.tabIndicatorOffset(tabPositions[selectedTab.ordinal]),
+                            color = Color(0xFFC5CAE9),
+                            height = 3.dp
+                        )
+                    }
+                ) {
+                    MainTab.entries.forEach { tab ->
+                        Tab(
+                            text = {
+                                if (selectedTab == tab) {
+                                    Text("• ${tab.title}")
+                                } else {
+                                    Text(tab.title)
+                                }
+                            },
+                            selected = selectedTab == tab,
+                            onClick = { selectedTab = tab },
+                        )
+                    }
+                }
+
+                when (selectedTab) {
+                    MainTab.Home -> homeContent(
+                        applicationScope = applicationScope,
+                        projectPath = projectPath,
+                        setProjectPath = {
+                            setImagePath(it)
                         },
-                        label = { Text("Text to display") }
-                    )
-                    Button(onClick = {
-                        setText(currentText)
-                        setPlayerWindowOpen(true)
-                    }) {
-                        Text("Update Text")
-                    }
-                }
-                Button(onClick = {
-                    val file = FileHelper.selectFile("Select Image", "image/*")
-                    setImagePath(file?.absolutePath)
-                    setVideoPath(null)
-                    setPlayerWindowOpen(true)
-                }) {
-                    Text("Select Image")
-                }
-                Button(onClick = {
-                    val file = FileHelper.selectFile("Select Video", "video/*")
-                    setVideoPath(file?.absolutePath)
-                    setImagePath(null)
-                    setPlayerWindowOpen(true)
-                }) {
-                    Text("Select Video")
-                }
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        ipSelector(items = ips, selectedItem = serverHost, onItemSelected = { setServerHost(it) })
-                        TextField(value = serverPort, onValueChange = { setServerPort(it) }, label = { Text("Port") })
-                    }
-                    Row {
-                        Button(onClick = {
-                            if (!serverStatus) {
-                                startServer(serverHost, serverPort.toInt())
-                                setQrCodeBitmap(
-                                    ImageHelper.generateQRCode(
-                                        "http://$serverHost:$serverPort/rcontrol/?api=http://$serverHost:$serverPort",
-                                    )
-                                )
-                                setServerStatus(true)
-                            } else {
-                                stopServer()
-                                setQrCodeBitmap(null)
-                                setServerStatus(false)
-                            }
-                        }) {
-                            Text(if (!serverStatus) "Start Server" else "Stop Server")
+                        setForceUpdateWindowState = {
+                            setForceUpdateWindowState()
                         }
-                    }
-                    qrCodeBitmap?.let { image ->
-                        Image(bitmap = image, contentDescription = "QR Code")
-                    }
+                    )
+
+                    MainTab.Images -> imageListContent(
+                        applicationScope = applicationScope,
+                        projectPath = projectPath,
+                        imagePath = imagePath,
+                        setImagePath = {
+                            setImagePath(it)
+                        },
+                        setPlayerWindowOpen = {
+                            setPlayerWindowOpen(it)
+                        }
+                    )
+
+                    MainTab.Videos -> videoListContent(
+                        applicationScope = applicationScope,
+                        projectPath = projectPath,
+                        videoPath = videoPath,
+                        setVideoPath = {
+                            setVideoPath(it)
+                        },
+                        setPlayerWindowOpen = {
+                            setPlayerWindowOpen(it)
+                        }
+                    )
+
+                    MainTab.Text -> textContent(
+                        applicationScope = applicationScope,
+                        projectPath = projectPath,
+                        text = text,
+                        setText = {
+                            setText(it)
+                        },
+                        setPlayerWindowOpen = {
+                            setPlayerWindowOpen(it)
+                        }
+                    )
+
+                    MainTab.Remote -> remoteContent(
+                        applicationScope = applicationScope,
+                        projectPath = projectPath,
+                        ips = ips,
+                        serverHost = serverHost,
+                        setServerHost = {
+                            setServerHost(it)
+                        },
+                        serverPort = serverPort,
+                        setServerPort = {
+                            setServerPort(it)
+                        },
+                        qrCodeBitmap = qrCodeBitmap,
+                        setQrCodeBitmap = {
+                            setQrCodeBitmap(it)
+                        },
+                        serverStatus = serverStatus,
+                        setServerStatus = {
+                            setServerStatus(it)
+                        },
+                        startServer = { host, port ->
+                            startServer(host, port)
+                        },
+                        stopServer = {
+                            stopServer()
+                        }
+                    )
                 }
             }
         }
