@@ -1,9 +1,6 @@
 package com.dataxow.ui.content
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
@@ -23,6 +20,7 @@ fun homeContent(
     projectPath: String,
     setProjectPath: (String) -> Unit,
     setForceUpdateWindowState: () -> Unit,
+    reload: () -> Unit,
 ) {
     Column(modifier = Modifier.padding(16.dp)) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -34,16 +32,24 @@ fun homeContent(
                 readOnly = true,
                 label = { Text("Project Folder") }
             )
-            Button(onClick = {
-                val chooser = JFileChooser().apply {
-                    fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+            Row {
+                Button(onClick = {
+                    val chooser = JFileChooser().apply {
+                        fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
+                    }
+                    val result = chooser.showOpenDialog(null)
+                    if (result == JFileChooser.APPROVE_OPTION) {
+                        setProjectPath(chooser.selectedFile.absolutePath)
+                    }
+                }) {
+                    Text("Select Folder")
                 }
-                val result = chooser.showOpenDialog(null)
-                if (result == JFileChooser.APPROVE_OPTION) {
-                    setProjectPath(chooser.selectedFile.absolutePath)
+                Spacer(modifier = Modifier.padding(10.dp))
+                Button(onClick = {
+                    reload()
+                }) {
+                    Text("Reload")
                 }
-            }) {
-                Text("Select Folder")
             }
         }
         Divider(modifier = Modifier.padding(vertical = 10.dp))

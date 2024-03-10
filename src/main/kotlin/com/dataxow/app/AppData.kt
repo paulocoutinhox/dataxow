@@ -6,8 +6,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.Font
+import com.dataxow.model.FileListItem
 import com.dataxow.renderer.RenderCallbackAdapter
 import io.ktor.server.netty.*
+import kotlinx.coroutines.flow.MutableStateFlow
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer
 import uk.co.caprica.vlcj.player.embedded.videosurface.CallbackVideoSurface
@@ -49,6 +51,7 @@ object AppData {
         )
     )
 
+    var onLoading: ((Boolean) -> Unit)? = null
     var onTextUpdate: ((String) -> Unit)? = null
     var onImageUpdate: ((String) -> Unit)? = null
     var onVideoUpdate: ((String) -> Unit)? = null
@@ -58,4 +61,7 @@ object AppData {
     val colorPalette = lightColors(
         primary = Color(0xFF3F51B5),
     )
+
+    var imageList = MutableStateFlow<ArrayList<FileListItem>>(arrayListOf())
+    var videoList = MutableStateFlow<ArrayList<FileListItem>>(arrayListOf())
 }

@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FileListItem(
-    val name: String,
+    val path: String,
     val isDirectory: Boolean,
 )

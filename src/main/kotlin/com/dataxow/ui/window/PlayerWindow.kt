@@ -36,7 +36,7 @@ fun playerWindow(
     mediaPlayer: EmbeddedMediaPlayer,
     videoSurface: CallbackVideoSurface,
     adapter: RenderCallbackAdapter,
-    fontPoppinsBold: FontFamily,
+    textFontFamily: FontFamily,
     onCloseRequest: () -> Unit
 ) {
     Window(
@@ -67,7 +67,7 @@ fun playerWindow(
             autoSizeText(
                 text = text,
                 style = TextStyle(
-                    fontFamily = fontPoppinsBold,
+                    fontFamily = textFontFamily,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     background = Color.Transparent,
@@ -79,7 +79,7 @@ fun playerWindow(
             autoSizeText(
                 text = text,
                 style = TextStyle(
-                    fontFamily = fontPoppinsBold,
+                    fontFamily = textFontFamily,
                     color = Color.Black,
                     fontWeight = FontWeight.Bold,
                     background = Color.Transparent,

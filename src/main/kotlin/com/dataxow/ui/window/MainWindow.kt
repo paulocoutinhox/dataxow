@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
 import com.dataxow.enum.MainTab
+import com.dataxow.ui.components.loadingDialog
 import com.dataxow.ui.content.*
 
 @Composable
@@ -22,6 +23,7 @@ fun mainWindow(
     applicationScope: ApplicationScope,
     projectPath: String,
     setProjectPath: (String) -> Unit,
+    isLoading: Boolean,
     setForceUpdateWindowState: () -> Unit,
     text: String,
     setText: (String) -> Unit,
@@ -42,6 +44,7 @@ fun mainWindow(
     setServerStatus: (Boolean) -> Unit,
     startServer: (String, Int) -> Unit,
     stopServer: () -> Unit,
+    reload: () -> Unit,
 ) {
     Window(onCloseRequest = applicationScope::exitApplication, title = "DataXow") {
         Scaffold {
@@ -78,10 +81,13 @@ fun mainWindow(
                         applicationScope = applicationScope,
                         projectPath = projectPath,
                         setProjectPath = {
-                            setImagePath(it)
+                            setProjectPath(it)
                         },
                         setForceUpdateWindowState = {
                             setForceUpdateWindowState()
+                        },
+                        reload = {
+                            reload()
                         }
                     )
 
@@ -94,6 +100,9 @@ fun mainWindow(
                         },
                         setPlayerWindowOpen = {
                             setPlayerWindowOpen(it)
+                        },
+                        reload = {
+                            reload()
                         }
                     )
 
@@ -106,6 +115,9 @@ fun mainWindow(
                         },
                         setPlayerWindowOpen = {
                             setPlayerWindowOpen(it)
+                        },
+                        reload = {
+                            reload()
                         }
                     )
 
@@ -150,6 +162,7 @@ fun mainWindow(
                     )
                 }
             }
+            loadingDialog(isLoading)
         }
     }
 }

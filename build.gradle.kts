@@ -25,6 +25,9 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.0.0")
     implementation("io.ktor:ktor-serialization-kotlinx-json:1.5.4")
     implementation("com.google.zxing:core:3.5.3")
+    implementation("io.coil-kt.coil3:coil-compose:3.0.0-alpha06")
+    implementation("io.coil-kt.coil3:coil-network-ktor:3.0.0-alpha05")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.8.0")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 }
 

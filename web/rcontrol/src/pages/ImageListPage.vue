@@ -98,11 +98,11 @@ onMounted(() => {
             </p>
 
             <div class="row">
-                <div class="col-6 col-md-4" v-for="image in imageList" :key="image.name">
+                <div class="col-6 col-md-4" v-for="image in imageList" :key="image.path">
                     <div class="image-box">
-                        <img :src="`${apiUrl}/image?path=${imageFolder.join('/')}${image.name}`"
+                        <img :src="`${apiUrl}/image?path=${imageFolder.join('/')}${image.path}`"
                             class="img-thumbnail rounded img-item" alt="Responsive image"
-                            @click="playerChangeImage(image.name)">
+                            @click="playerChangeImage(image.path)">
                     </div>
                 </div>
             </div>

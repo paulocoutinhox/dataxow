@@ -1,18 +1,17 @@
 package com.dataxow
 
 import androidx.compose.material.MaterialTheme
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import com.dataxow.app.AppData
 import com.dataxow.app.ConfigManager
 import com.dataxow.app.configureRoutes
+import com.dataxow.helper.ImageListHelper
 import com.dataxow.helper.NetHelper
 import com.dataxow.helper.SystemHelper
+import com.dataxow.helper.VideoListHelper
 import com.dataxow.ui.helper.systemScreenWatcher
 import com.dataxow.ui.window.mainWindow
 import com.dataxow.ui.window.playerWindow
@@ -24,7 +23,9 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.*
 import kotlinx.serialization.json.Json
+import java.io.File
 
 fun main() = application {
     var windowState by remember { mutableStateOf(WindowState()) }
@@ -42,6 +43,8 @@ fun main() = application {
     var serverPort by remember { mutableStateOf(AppData.config.serverPort) }
     var qrCodeBitmap by remember { mutableStateOf<ImageBitmap?>(null) }
     var serverStatus by remember { mutableStateOf(false) }
+
+    var isLoading by remember { mutableStateOf(false) }
 
     AppData.onTextUpdate = { newText ->
         text = newText
@@ -64,6 +67,10 @@ fun main() = application {
         windowState = SystemHelper.getMonitorState(isMultiScreen, screenDevice)
     }
 
+    AppData.onLoading = { loading ->
+        isLoading = loading
+    }
+
     AppData.mediaPlayer.controls().repeat = true
 
     // Main window
@@ -76,7 +83,10 @@ fun main() = application {
             setProjectPath = {
                 projectPath = it
                 AppData.config.project = it
+
+                reload()
             },
+            isLoading = isLoading,
             setForceUpdateWindowState = {
                 AppData.onSystemScreenUpdates?.invoke(AppData.isMultiScreen, AppData.playerScreenDevice)
             },
@@ -109,7 +119,8 @@ fun main() = application {
             serverStatus = serverStatus,
             setServerStatus = { serverStatus = it },
             startServer = ::startServer,
-            stopServer = ::stopServer
+            stopServer = ::stopServer,
+            reload = { reload() },
         )
     }
 
@@ -128,7 +139,7 @@ fun main() = application {
             mediaPlayer = AppData.mediaPlayer,
             videoSurface = AppData.videoSurface,
             adapter = AppData.adapter,
-            fontPoppinsBold = AppData.fontPoppinsBold,
+            textFontFamily = AppData.fontPoppinsBold,
             onCloseRequest = {
                 playerWindowOpen = false
             }
@@ -139,6 +150,11 @@ fun main() = application {
     Runtime.getRuntime().addShutdownHook(Thread {
         ConfigManager.saveConfig(AppData.config)
     })
+
+    // Initial Data
+    LaunchedEffect(key1 = "InitialData") {
+        reload()
+    }
 }
 
 fun startServer(host: String, port: Int) {
@@ -168,4 +184,40 @@ fun startServer(host: String, port: Int) {
 
 fun stopServer() {
     AppData.server?.stop(0, 0)
+}
+
+@OptIn(DelicateCoroutinesApi::class)
+fun reload() {
+    GlobalScope.launch {
+        AppData.onLoading?.invoke(true)
+
+        reloadImages()
+        reloadVideos()
+
+        AppData.onLoading?.invoke(false)
+    }
+}
+
+suspend fun reloadImages() {
+    AppData.onLoading?.invoke(true)
+
+    val images = withContext(Dispatchers.IO) {
+        ImageListHelper.loadImagesFromPath(
+            File(AppData.config.project, "images").absolutePath,
+        )
+    }
+
+    AppData.imageList.value = ArrayList(images)
+}
+
+suspend fun reloadVideos() {
+    AppData.onLoading?.invoke(true)
+
+    val images = withContext(Dispatchers.IO) {
+        VideoListHelper.loadVideosFromPath(
+            File(AppData.config.project, "videos").absolutePath,
+        )
+    }
+
+    AppData.videoList.value = ArrayList(images)
 }
