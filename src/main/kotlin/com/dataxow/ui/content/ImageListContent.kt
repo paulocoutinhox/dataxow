@@ -2,15 +2,15 @@ package com.dataxow.ui.content
 
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -31,6 +31,7 @@ fun imageListContent(
     reload: () -> Unit,
 ) {
     val imageList by remember { mutableStateOf(AppData.imageList) }
+    var isGrid by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.padding(16.dp)) {
         Row {
@@ -47,30 +48,83 @@ fun imageListContent(
             }) {
                 Text("Refresh")
             }
+            Spacer(modifier = Modifier.padding(16.dp))
+            Button(onClick = {
+                isGrid = !isGrid
+            }) {
+                if (isGrid) {
+                    Text("Show List")
+                } else {
+                    Text("Show Grid")
+                }
+            }
         }
         Divider(modifier = Modifier.padding(vertical = 10.dp))
-        LazyVerticalGrid(
-            columns = GridCells.Adaptive(minSize = 100.dp),
-            modifier = Modifier.padding(8.dp),
-        ) {
-            items(count = imageList.value.size, itemContent = { index ->
-                AsyncImage(
-                    model = File(imageList.value[index].path),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(100.dp)
-                        .padding(8.dp)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onDoubleTap = {
-                                    setImagePath(imageList.value[index].path)
-                                    setPlayerWindowOpen(true)
+
+        if (isGrid) {
+            LazyVerticalGrid(
+                columns = GridCells.Adaptive(minSize = 100.dp),
+                modifier = Modifier.padding(8.dp),
+            ) {
+                items(count = imageList.value.size, itemContent = { index ->
+                    AsyncImage(
+                        model = File(imageList.value[index].path),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(100.dp)
+                            .padding(8.dp)
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onDoubleTap = {
+                                        setImagePath(imageList.value[index].path)
+                                        setPlayerWindowOpen(true)
+                                    }
+                                )
+                            },
+                    )
+                })
+            }
+        } else {
+            LazyColumn(modifier = Modifier.padding(8.dp)) {
+                items(imageList.value) { image ->
+                    Row {
+                        AsyncImage(
+                            model = File(image.path),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(100.dp)
+                                .padding(8.dp)
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onDoubleTap = {
+                                            setImagePath(image.path)
+                                            setPlayerWindowOpen(true)
+                                        }
+                                    )
+                                },
+                        )
+                        Text(
+                            text = File(image.path).name,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .align(Alignment.CenterVertically)
+                                .padding(8.dp)
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onDoubleTap = {
+                                            setImagePath(image.path)
+                                            setPlayerWindowOpen(true)
+                                        }
+                                    )
                                 }
-                            )
-                        },
-                )
-            })
+                        )
+                    }
+
+                    Divider()
+                }
+            }
         }
     }
 }
