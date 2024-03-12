@@ -1,6 +1,8 @@
 package com.dataxow.ui.window
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Tab
 import androidx.compose.material.TabRow
@@ -11,9 +13,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowState
 import com.dataxow.enum.MainTab
 import com.dataxow.ui.components.loadingDialog
 import com.dataxow.ui.content.*
@@ -46,7 +50,20 @@ fun mainWindow(
     stopServer: () -> Unit,
     reload: () -> Unit,
 ) {
-    Window(onCloseRequest = applicationScope::exitApplication, title = "DataXow") {
+    var windowState by remember { mutableStateOf(WindowState()) }
+    windowState.size = DpSize(1024.dp, 768.dp)
+
+    val imageListListState = rememberLazyListState()
+    val imageListGridState = rememberLazyGridState()
+    var imageListIsGrid by remember { mutableStateOf(false) }
+
+    val videoListListState = rememberLazyListState()
+
+    Window(
+        onCloseRequest = applicationScope::exitApplication,
+        state = windowState,
+        title = "DataXow",
+    ) {
         Scaffold {
             Column {
                 var selectedTab by remember { mutableStateOf(MainTab.Home) }
@@ -101,6 +118,12 @@ fun mainWindow(
                         setPlayerWindowOpen = {
                             setPlayerWindowOpen(it)
                         },
+                        isGrid = imageListIsGrid,
+                        setIsGrid = {
+                            imageListIsGrid = it
+                        },
+                        listState = imageListListState,
+                        gridState = imageListGridState,
                         reload = {
                             reload()
                         }
@@ -116,6 +139,7 @@ fun mainWindow(
                         setPlayerWindowOpen = {
                             setPlayerWindowOpen(it)
                         },
+                        listState = videoListListState,
                         reload = {
                             reload()
                         }
@@ -166,3 +190,4 @@ fun mainWindow(
         }
     }
 }
+

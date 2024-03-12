@@ -21,19 +21,15 @@ object AppData {
 
     var isMultiScreen = false
         @Synchronized
-        get() = field
+        get
         @Synchronized
-        set(value) {
-            field = value
-        }
+        set
 
     var playerScreenDevice: GraphicsDevice? = null
         @Synchronized
-        get() = field
+        get
         @Synchronized
-        set(value) {
-            field = value
-        }
+        set
 
     val config = ConfigManager.loadConfig()
 

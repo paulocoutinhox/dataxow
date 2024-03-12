@@ -25,6 +25,7 @@ object VideoListHelper {
             .map { obj: FileListItem ->
                 FileListItem(
                     File(videosPath.absolutePathString(), obj.path).absolutePath,
+                    obj.isFile,
                     obj.isDirectory
                 )
             }
@@ -36,7 +37,7 @@ object VideoListHelper {
                 file.isDirectory || file.name.matches(".*\\.(avi|mov|mp4|mpeg)$".toRegex())
             }
             .sorted(Comparator.comparing(File::getName))
-            .map { obj: File -> FileListItem(obj.name, obj.isDirectory) }
+            .map { obj: File -> FileListItem(obj.name, obj.isFile, obj.isDirectory) }
             .collect(Collectors.toList())
     }
 }

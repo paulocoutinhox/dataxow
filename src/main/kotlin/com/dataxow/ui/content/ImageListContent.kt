@@ -3,13 +3,16 @@ package com.dataxow.ui.content
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -28,10 +31,13 @@ fun imageListContent(
     imagePath: String?,
     setImagePath: (String?) -> Unit,
     setPlayerWindowOpen: (Boolean) -> Unit,
+    isGrid: Boolean,
+    setIsGrid: (Boolean) -> Unit,
+    listState: LazyListState,
+    gridState: LazyGridState,
     reload: () -> Unit,
 ) {
-    val imageList by remember { mutableStateOf(AppData.imageList) }
-    var isGrid by remember { mutableStateOf(false) }
+    val imageList = AppData.imageList.collectAsState()
 
     Column(modifier = Modifier.padding(16.dp)) {
         Row {
@@ -50,7 +56,7 @@ fun imageListContent(
             }
             Spacer(modifier = Modifier.padding(16.dp))
             Button(onClick = {
-                isGrid = !isGrid
+                setIsGrid(!isGrid)
             }) {
                 if (isGrid) {
                     Text("Show List")
@@ -59,36 +65,19 @@ fun imageListContent(
                 }
             }
         }
+
         Divider(modifier = Modifier.padding(vertical = 10.dp))
 
         if (isGrid) {
             LazyVerticalGrid(
                 columns = GridCells.Adaptive(minSize = 100.dp),
                 modifier = Modifier.padding(8.dp),
+                state = gridState,
             ) {
                 items(count = imageList.value.size, itemContent = { index ->
-                    AsyncImage(
-                        model = File(imageList.value[index].path),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(100.dp)
-                            .padding(8.dp)
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onDoubleTap = {
-                                        setImagePath(imageList.value[index].path)
-                                        setPlayerWindowOpen(true)
-                                    }
-                                )
-                            },
-                    )
-                })
-            }
-        } else {
-            LazyColumn(modifier = Modifier.padding(8.dp)) {
-                items(imageList.value) { image ->
-                    Row {
+                    val image = imageList.value[index]
+
+                    if (image.isFile) {
                         AsyncImage(
                             model = File(image.path),
                             contentDescription = null,
@@ -105,24 +94,52 @@ fun imageListContent(
                                     )
                                 },
                         )
-                        Text(
-                            text = File(image.path).name,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .align(Alignment.CenterVertically)
-                                .padding(8.dp)
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onDoubleTap = {
-                                            setImagePath(image.path)
-                                            setPlayerWindowOpen(true)
-                                        }
-                                    )
-                                }
-                        )
                     }
+                })
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.padding(8.dp),
+                state = listState
+            ) {
+                items(imageList.value) { image ->
+                    if (image.isFile) {
+                        Row {
+                            AsyncImage(
+                                model = File(image.path),
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .padding(8.dp)
+                                    .pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onDoubleTap = {
+                                                setImagePath(image.path)
+                                                setPlayerWindowOpen(true)
+                                            }
+                                        )
+                                    },
+                            )
+                            Text(
+                                text = File(image.path).name,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .align(Alignment.CenterVertically)
+                                    .padding(8.dp)
+                                    .pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onDoubleTap = {
+                                                setImagePath(image.path)
+                                                setPlayerWindowOpen(true)
+                                            }
+                                        )
+                                    }
+                            )
+                        }
 
-                    Divider()
+                        Divider()
+                    }
                 }
             }
         }

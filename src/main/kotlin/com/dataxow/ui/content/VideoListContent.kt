@@ -3,6 +3,7 @@ package com.dataxow.ui.content
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
@@ -26,6 +27,7 @@ fun videoListContent(
     videoPath: String?,
     setVideoPath: (String?) -> Unit,
     setPlayerWindowOpen: (Boolean) -> Unit,
+    listState: LazyListState,
     reload: () -> Unit,
 ) {
     val videoList by remember { mutableStateOf(AppData.videoList) }
@@ -46,24 +48,31 @@ fun videoListContent(
                 Text("Refresh")
             }
         }
+
         Divider(modifier = Modifier.padding(vertical = 10.dp))
-        LazyColumn(modifier = Modifier.padding(8.dp)) {
+
+        LazyColumn(
+            modifier = Modifier.padding(8.dp),
+            state = listState,
+        ) {
             items(videoList.value) { video ->
-                Text(
-                    text = File(video.path).name,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .pointerInput(Unit) {
-                            detectTapGestures(
-                                onDoubleTap = {
-                                    setVideoPath(video.path)
-                                    setPlayerWindowOpen(true)
-                                }
-                            )
-                        }
-                )
-                Divider()
+                if (video.isFile) {
+                    Text(
+                        text = File(video.path).name,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onDoubleTap = {
+                                        setVideoPath(video.path)
+                                        setPlayerWindowOpen(true)
+                                    }
+                                )
+                            }
+                    )
+                    Divider()
+                }
             }
         }
     }

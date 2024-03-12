@@ -8,33 +8,33 @@ import java.util.*
 import java.util.stream.Collectors
 import kotlin.io.path.absolutePathString
 
-object ImageListHelper {
-    fun loadImagesFromPath(path: String): List<FileListItem> {
-        val imagesPath = Paths.get(path).normalize()
+object TextListHelper {
+    fun loadTextsFromPath(path: String): List<FileListItem> {
+        val textsPath = Paths.get(path).normalize()
 
-        if (!imagesPath.startsWith(Paths.get(AppData.config.project, "images"))) {
+        if (!textsPath.startsWith(Paths.get(AppData.config.project, "songs"))) {
             return listOf()
         }
 
-        val directory: File = imagesPath.toFile()
+        val directory: File = textsPath.toFile()
         if (!directory.exists() || !directory.isDirectory) {
             return listOf()
         }
 
-        return prepareImageList(directory)
+        return prepareTextList(directory)
             .map { obj: FileListItem ->
                 FileListItem(
-                    File(imagesPath.absolutePathString(), obj.path).absolutePath,
+                    File(textsPath.absolutePathString(), obj.path).absolutePath,
                     obj.isFile,
                     obj.isDirectory
                 )
             }
     }
 
-    fun prepareImageList(directory: File): List<FileListItem> {
+    fun prepareTextList(directory: File): List<FileListItem> {
         return Arrays.stream(directory.listFiles())
             .filter { file: File ->
-                file.isDirectory || file.name.matches(".*\\.(jpg|jpeg|png|gif|webp)$".toRegex())
+                file.isDirectory || file.name.matches(".*\\.(txt)$".toRegex())
             }
             .sorted(Comparator.comparing(File::getName))
             .map { obj: File -> FileListItem(obj.name, obj.isFile, obj.isDirectory) }
