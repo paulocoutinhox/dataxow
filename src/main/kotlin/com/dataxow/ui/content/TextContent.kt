@@ -209,16 +209,34 @@ fun textContent(
             }
             Divider(Modifier.fillMaxHeight().width(1.dp))
             Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
-                Button(onClick = {
-                    // ignore
-                }) {
-                    Text("Clear")
-                }
+                var currentText by remember { mutableStateOf(text) }
+
+                TextField(
+                    modifier = Modifier.fillMaxWidth(),
+                    value = currentText,
+                    onValueChange = {
+                        currentText = it
+                    },
+                    label = { Text("Text to Display") }
+                )
                 Spacer(Modifier.height(6.dp))
-                Button(onClick = {
-                    // ignore
-                }) {
-                    Text("Go Live")
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            setText(currentText)
+                            setPlayerWindowOpen(true)
+                        }) {
+                        Text("Update Text")
+                    }
+                    Spacer(Modifier.width(6.dp))
+                    Button(
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            currentText = ""
+                        }) {
+                        Text("Clear")
+                    }
                 }
             }
         }
@@ -235,24 +253,3 @@ fun search(query: String): List<FileListItem> {
             File(obj.path).name.contains(query)
         }
 }
-
-
-//    Column(modifier = Modifier.padding(16.dp)) {
-//        Row(verticalAlignment = Alignment.CenterVertically) {
-//            var currentText by remember { mutableStateOf(text) }
-//
-//            TextField(
-//                value = currentText,
-//                onValueChange = {
-//                    currentText = it
-//                },
-//                label = { Text("Text to display") }
-//            )
-//            Button(onClick = {
-//                setText(currentText)
-//                setPlayerWindowOpen(true)
-//            }) {
-//                Text("Update Text")
-//            }
-//        }
-//    }
