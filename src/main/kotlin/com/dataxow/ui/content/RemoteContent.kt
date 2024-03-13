@@ -47,7 +47,9 @@ fun remoteContent(
                 modifier = Modifier.fillMaxWidth(),
                 value = serverPort,
                 onValueChange = { setServerPort(it) },
-                label = { Text("Port") })
+                label = { Text("Port") },
+                singleLine = true,
+            )
         }
         Row(modifier = Modifier.padding(top = 10.dp)) {
             Button(onClick = {

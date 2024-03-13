@@ -1,17 +1,18 @@
 package com.dataxow.ui.content
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.material.Button
-import androidx.compose.material.Divider
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import com.dataxow.app.AppData
@@ -30,69 +31,175 @@ fun textContent(
     var searchText by remember { mutableStateOf("") }
     var customText by remember { mutableStateOf("") }
     var searchResults by remember { mutableStateOf(listOf<FileListItem>()) }
-    var selectedSongs by remember { mutableStateOf(listOf<String>()) }
+    val textList = AppData.textList.collectAsState().value
+    val previewTextList = AppData.previewTextList.collectAsState().value
 
     LaunchedEffect(searchText) {
-        searchResults = searchSongs(searchText)
+        searchResults = search(searchText)
     }
 
     Column(modifier = Modifier.padding(16.dp).fillMaxHeight()) {
         Row(modifier = Modifier.fillMaxWidth()) {
             Column(modifier = Modifier.weight(1f).padding(end = 8.dp)) {
-                BasicText("Search a File:", style = TextStyle(fontWeight = FontWeight.Bold))
-                Spacer(Modifier.height(6.dp))
-                OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
-                    value = searchText,
-                    onValueChange = { searchText = it },
-                    label = { Text("Name") },
-                    singleLine = true
-                )
-                Button(
-                    onClick = { searchResults = searchSongs(searchText) },
-                    modifier = Modifier.padding(top = 8.dp)
-                ) {
-                    Text("Update")
+                Column(modifier = Modifier.weight(1f)) {
+                    BasicText("Search a File:", style = TextStyle(fontWeight = FontWeight.Bold))
+                    Spacer(Modifier.height(6.dp))
+                    OutlinedTextField(
+                        modifier = Modifier.fillMaxWidth(),
+                        value = searchText,
+                        onValueChange = { searchText = it },
+                        label = { Text("Name") },
+                        singleLine = true
+                    )
+                    Button(
+                        onClick = { searchResults = search(searchText) },
+                        modifier = Modifier.padding(top = 8.dp)
+                    ) {
+                        Text("Update", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
+                    }
+                    Divider(Modifier.padding(vertical = 8.dp))
+                    BasicText("Search Results:", style = TextStyle(fontWeight = FontWeight.Bold))
+                    Spacer(Modifier.height(6.dp))
+
+                    if (searchResults.isEmpty()) {
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            if (searchText.isEmpty()) {
+                                Text(
+                                    "Empty",
+                                    modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
+                                    style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
+                                )
+                            } else {
+                                Text(
+                                    "Not Found",
+                                    modifier = Modifier.weight(1f).fillMaxSize().wrapContentSize(Alignment.Center),
+                                    style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
+                                )
+                            }
+                        }
+                    } else {
+                        LazyColumn(modifier = Modifier.weight(1f)) {
+                            items(items = searchResults, key = { item -> item.path }) { item ->
+                                Column(
+                                    modifier = Modifier.pointerInput(Unit) {
+                                        detectTapGestures(
+                                            onDoubleTap = {
+                                                if (!AppData.textList.value.contains(item)) {
+                                                    val newList = AppData.textList.value + item
+                                                    AppData.textList.value = ArrayList(newList)
+                                                }
+                                            }
+                                        )
+                                    },
+                                ) {
+                                    Text("• ${File(item.path).name}", modifier = Modifier.padding(vertical = 5.dp))
+                                    Divider()
+                                }
+                            }
+                        }
+                    }
+
+                    Divider(Modifier.padding(bottom = 6.dp))
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Button(
+                            modifier = Modifier.weight(1f).padding(end = 4.dp),
+                            onClick = {
+                                // ignore
+                            }) {
+                            Text("Add", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
+                        }
+                        Spacer(Modifier.width(4.dp))
+                        Button(
+                            modifier = Modifier.weight(1f).padding(end = 4.dp),
+                            onClick = {
+                                // ignore
+                            }) {
+                            Text("Change", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
+                        }
+                        Spacer(Modifier.width(4.dp))
+                        Button(
+                            modifier = Modifier.weight(1f).padding(end = 4.dp),
+                            onClick = {
+                                // ignore
+                            }) {
+                            Text("Delete", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
+                        }
+                    }
+                    Divider(Modifier.padding(vertical = 6.dp))
                 }
-                Divider(Modifier.padding(vertical = 8.dp))
-                BasicText("Search Results:", style = TextStyle(fontWeight = FontWeight.Bold))
-                Spacer(Modifier.height(6.dp))
-                LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(items = searchResults, key = { item -> item.path }) { song ->
-                        Text("• ${File(song.path).name}", modifier = Modifier.padding(vertical = 5.dp))
-                        Divider()
+                Column(modifier = Modifier.weight(1f)) {
+                    BasicText("Content Selected:", style = TextStyle(fontWeight = FontWeight.Bold))
+                    Spacer(Modifier.height(6.dp))
+
+                    if (textList.isEmpty()) {
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                "Empty",
+                                modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
+                                style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
+                            )
+                        }
+                    } else {
+                        LazyColumn(modifier = Modifier.weight(1f)) {
+                            items(items = textList, key = { item -> item.path }) { item ->
+                                Text("• ${File(item.path).name}", modifier = Modifier.padding(vertical = 5.dp))
+                                Divider()
+                            }
+                        }
                     }
-                }
-                Divider(Modifier.padding(bottom = 6.dp))
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Button(
-                        modifier = Modifier.weight(1f).padding(end = 4.dp),
-                        onClick = { /* Action to add song */ }) {
-                        Text("Add")
-                    }
-                    Spacer(Modifier.width(4.dp))
-                    Button(
-                        modifier = Modifier.weight(1f).padding(end = 4.dp),
-                        onClick = { /* Action to change song */ }) {
-                        Text("Change")
-                    }
-                    Spacer(Modifier.width(4.dp))
-                    Button(
-                        modifier = Modifier.weight(1f).padding(end = 4.dp),
-                        onClick = { /* Action to delete song */ }) {
-                        Text("Delete")
+                    Divider(Modifier.padding(vertical = 6.dp))
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Button(
+                            modifier = Modifier.weight(1f).padding(end = 4.dp),
+                            onClick = {
+                                // ignore
+                            }) {
+                            Text("Remove", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
+                        }
+                        Spacer(Modifier.width(4.dp))
+                        Button(
+                            modifier = Modifier.weight(1f).padding(end = 4.dp),
+                            onClick = {
+                                //
+                            }) {
+                            Text("Send to Preview", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
+                        }
                     }
                 }
             }
             Divider(Modifier.fillMaxHeight().width(1.dp))
             Column(modifier = Modifier.weight(1f).padding(horizontal = 8.dp)) {
-                BasicText("Selected Content:", style = TextStyle(fontWeight = FontWeight.Bold))
-                LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(items = selectedSongs, key = { item -> item }) { song ->
-                        Text(song, modifier = Modifier.padding(2.dp))
-                        Divider()
+                BasicText("Selected Content Preview:", style = TextStyle(fontWeight = FontWeight.Bold))
+
+                if (previewTextList.isEmpty()) {
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            "Empty",
+                            modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center),
+                            style = LocalTextStyle.current.copy(textAlign = TextAlign.Center)
+                        )
+                    }
+                } else {
+                    LazyColumn(modifier = Modifier.weight(1f)) {
+                        items(items = previewTextList, key = { item -> item }) { item ->
+                            Text(item, modifier = Modifier.padding(2.dp))
+                            Divider()
+                        }
                     }
                 }
+
                 OutlinedTextField(
                     value = customText,
                     onValueChange = { customText = it },
@@ -102,11 +209,15 @@ fun textContent(
             }
             Divider(Modifier.fillMaxHeight().width(1.dp))
             Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
-                Button(onClick = { /* Action to clear selection */ }) {
+                Button(onClick = {
+                    // ignore
+                }) {
                     Text("Clear")
                 }
                 Spacer(Modifier.height(6.dp))
-                Button(onClick = { /* Action to go live */ }) {
+                Button(onClick = {
+                    // ignore
+                }) {
                     Text("Go Live")
                 }
             }
@@ -114,7 +225,7 @@ fun textContent(
     }
 }
 
-fun searchSongs(query: String): List<FileListItem> {
+fun search(query: String): List<FileListItem> {
     if (query.isEmpty()) {
         return listOf()
     }

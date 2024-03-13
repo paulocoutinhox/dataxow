@@ -29,15 +29,18 @@ fun homeContent(
                 modifier = Modifier.fillMaxWidth(),
                 value = projectPath,
                 onValueChange = {},
+                label = { Text("Project Folder") },
                 readOnly = true,
-                label = { Text("Project Folder") }
+                singleLine = true,
             )
             Row {
                 Button(onClick = {
                     val chooser = JFileChooser().apply {
                         fileSelectionMode = JFileChooser.DIRECTORIES_ONLY
                     }
+
                     val result = chooser.showOpenDialog(null)
+
                     if (result == JFileChooser.APPROVE_OPTION) {
                         setProjectPath(chooser.selectedFile.absolutePath)
                     }

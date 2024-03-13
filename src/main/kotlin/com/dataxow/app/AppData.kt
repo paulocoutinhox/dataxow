@@ -60,4 +60,6 @@ object AppData {
 
     var imageList = MutableStateFlow<ArrayList<FileListItem>>(arrayListOf())
     var videoList = MutableStateFlow<ArrayList<FileListItem>>(arrayListOf())
+    var textList = MutableStateFlow<ArrayList<FileListItem>>(arrayListOf())
+    var previewTextList = MutableStateFlow<ArrayList<String>>(arrayListOf())
 }

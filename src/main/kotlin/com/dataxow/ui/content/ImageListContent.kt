@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
+import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -17,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import coil3.compose.AsyncImage
@@ -46,22 +48,22 @@ fun imageListContent(
                 setImagePath(file?.absolutePath)
                 setPlayerWindowOpen(true)
             }) {
-                Text("Open Image")
+                Text("Open Image", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
             }
             Spacer(modifier = Modifier.padding(16.dp))
             Button(onClick = {
                 reload()
             }) {
-                Text("Refresh")
+                Text("Refresh", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
             }
             Spacer(modifier = Modifier.padding(16.dp))
             Button(onClick = {
                 setIsGrid(!isGrid)
             }) {
                 if (isGrid) {
-                    Text("Show List")
+                    Text("Show List", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
                 } else {
-                    Text("Show Grid")
+                    Text("Show Grid", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
                 }
             }
         }
