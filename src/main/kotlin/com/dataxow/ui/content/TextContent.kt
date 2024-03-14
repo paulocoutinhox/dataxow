@@ -1,15 +1,15 @@
 package com.dataxow.ui.content
 
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -18,21 +18,25 @@ import androidx.compose.ui.window.ApplicationScope
 import com.dataxow.app.AppData
 import com.dataxow.helper.TextListHelper
 import com.dataxow.model.FileListItem
+import com.dataxow.ui.components.rowData
 import java.io.File
 
 @Composable
 fun textContent(
     applicationScope: ApplicationScope,
     projectPath: String,
-    text: String,
-    setText: (String) -> Unit,
     setPlayerWindowOpen: (Boolean) -> Unit,
+    previewListState: LazyListState,
+    contentSelectedListState: LazyListState,
+    contentSelectedPreviewListState: LazyListState,
 ) {
+    val liveText = AppData.liveText.collectAsState().value
     var searchText by remember { mutableStateOf("") }
-    var customText by remember { mutableStateOf("") }
     var searchResults by remember { mutableStateOf(listOf<FileListItem>()) }
+    var searchResultsSelectedIndex by remember { mutableStateOf(-1) }
     val textList = AppData.textList.collectAsState().value
     val previewTextList = AppData.previewTextList.collectAsState().value
+    var contentSelectedSelectedIndex by remember { mutableStateOf(-1) }
 
     LaunchedEffect(searchText) {
         searchResults = search(searchText)
@@ -82,23 +86,32 @@ fun textContent(
                             }
                         }
                     } else {
-                        LazyColumn(modifier = Modifier.weight(1f)) {
-                            items(items = searchResults, key = { item -> item.path }) { item ->
-                                Column(
-                                    modifier = Modifier.pointerInput(Unit) {
-                                        detectTapGestures(
-                                            onDoubleTap = {
-                                                if (!AppData.textList.value.contains(item)) {
-                                                    val newList = AppData.textList.value + item
-                                                    AppData.textList.value = ArrayList(newList)
-                                                }
-                                            }
-                                        )
+                        LazyColumn(modifier = Modifier.weight(1f), state = previewListState) {
+                            itemsIndexed(items = searchResults, key = { _, item -> item.path }) { index, item ->
+                                rowData(
+                                    index = index,
+                                    selected = searchResultsSelectedIndex == index,
+                                    onTap = { selectedIndex ->
+                                        searchResultsSelectedIndex = selectedIndex
                                     },
-                                ) {
-                                    Text("• ${File(item.path).name}", modifier = Modifier.padding(vertical = 5.dp))
-                                    Divider()
-                                }
+                                    onDoubleTap = { selectedIndex ->
+                                        searchResultsSelectedIndex = selectedIndex
+
+                                        if (!AppData.textList.value.contains(item)) {
+                                            val newList = AppData.textList.value + item
+                                            AppData.textList.value = ArrayList(newList)
+                                        }
+                                    },
+                                    content = {
+                                        Column {
+                                            Text(
+                                                "• ${File(item.path).name}",
+                                                modifier = Modifier.padding(vertical = 5.dp)
+                                            )
+                                            Divider()
+                                        }
+                                    }
+                                )
                             }
                         }
                     }
@@ -148,10 +161,27 @@ fun textContent(
                             )
                         }
                     } else {
-                        LazyColumn(modifier = Modifier.weight(1f)) {
-                            items(items = textList, key = { item -> item.path }) { item ->
-                                Text("• ${File(item.path).name}", modifier = Modifier.padding(vertical = 5.dp))
-                                Divider()
+                        LazyColumn(modifier = Modifier.weight(1f), state = contentSelectedListState) {
+                            itemsIndexed(items = textList, key = { index, item -> item.path }) { index, item ->
+                                rowData(
+                                    index = index,
+                                    selected = contentSelectedSelectedIndex == index,
+                                    onTap = { selectedIndex ->
+                                        contentSelectedSelectedIndex = selectedIndex
+                                    },
+                                    onDoubleTap = { selectedIndex ->
+                                        contentSelectedSelectedIndex = selectedIndex
+                                    },
+                                    content = {
+                                        Column {
+                                            Text(
+                                                "• ${File(item.path).name}",
+                                                modifier = Modifier.padding(vertical = 5.dp)
+                                            )
+                                            Divider()
+                                        }
+                                    }
+                                )
                             }
                         }
                     }
@@ -192,27 +222,22 @@ fun textContent(
                         )
                     }
                 } else {
-                    LazyColumn(modifier = Modifier.weight(1f)) {
+                    LazyColumn(modifier = Modifier.weight(1f), state = contentSelectedPreviewListState) {
                         items(items = previewTextList, key = { item -> item }) { item ->
-                            Text(item, modifier = Modifier.padding(2.dp))
+                            Text("• $item", modifier = Modifier.padding(2.dp))
                             Divider()
                         }
                     }
                 }
-
-                OutlinedTextField(
-                    value = customText,
-                    onValueChange = { customText = it },
-                    label = { Text("Custom Text") },
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
             Divider(Modifier.fillMaxHeight().width(1.dp))
             Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
-                var currentText by remember { mutableStateOf(text) }
+                var currentText by remember { mutableStateOf(liveText) }
 
+                BasicText("Live Text:", style = TextStyle(fontWeight = FontWeight.Bold))
+                Spacer(Modifier.height(6.dp))
                 TextField(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth().weight(1f),
                     value = currentText,
                     onValueChange = {
                         currentText = it
@@ -220,22 +245,26 @@ fun textContent(
                     label = { Text("Text to Display") }
                 )
                 Spacer(Modifier.height(6.dp))
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    Button(
-                        modifier = Modifier.weight(1f),
-                        onClick = {
-                            setText(currentText)
-                            setPlayerWindowOpen(true)
-                        }) {
-                        Text("Update Text")
-                    }
-                    Spacer(Modifier.width(6.dp))
-                    Button(
-                        modifier = Modifier.weight(1f),
-                        onClick = {
-                            currentText = ""
-                        }) {
-                        Text("Clear")
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                AppData.liveText.value = currentText
+                                setPlayerWindowOpen(true)
+                            }) {
+                            Text("Update Live Text", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
+                        }
+                        Spacer(Modifier.width(6.dp))
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                currentText = ""
+                            }) {
+                            Text("Clear", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
+                        }
                     }
                 }
             }

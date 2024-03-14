@@ -29,8 +29,6 @@ fun mainWindow(
     setProjectPath: (String) -> Unit,
     isLoading: Boolean,
     setForceUpdateWindowState: () -> Unit,
-    text: String,
-    setText: (String) -> Unit,
     imagePath: String?,
     setImagePath: (String?) -> Unit,
     videoPath: String?,
@@ -50,7 +48,7 @@ fun mainWindow(
     stopServer: () -> Unit,
     reload: () -> Unit,
 ) {
-    var windowState by remember { mutableStateOf(WindowState()) }
+    val windowState by remember { mutableStateOf(WindowState()) }
     windowState.size = DpSize(1024.dp, 768.dp)
 
     val imageListListState = rememberLazyListState()
@@ -58,6 +56,10 @@ fun mainWindow(
     var imageListIsGrid by remember { mutableStateOf(false) }
 
     val videoListListState = rememberLazyListState()
+
+    val textListPreviewListState = rememberLazyListState()
+    val textListContentSelectedListState = rememberLazyListState()
+    val textListContentSelectedPreviewListState = rememberLazyListState()
 
     Window(
         onCloseRequest = applicationScope::exitApplication,
@@ -148,13 +150,12 @@ fun mainWindow(
                     MainTab.Text -> textContent(
                         applicationScope = applicationScope,
                         projectPath = projectPath,
-                        text = text,
-                        setText = {
-                            setText(it)
-                        },
                         setPlayerWindowOpen = {
                             setPlayerWindowOpen(it)
-                        }
+                        },
+                        previewListState = textListPreviewListState,
+                        contentSelectedListState = textListContentSelectedListState,
+                        contentSelectedPreviewListState = textListContentSelectedPreviewListState,
                     )
 
                     MainTab.Remote -> remoteContent(

@@ -58,6 +58,7 @@ object AppData {
         primary = Color(0xFF3F51B5),
     )
 
+    var liveText = MutableStateFlow("DataXow\nSample\nText")
     var imageList = MutableStateFlow<ArrayList<FileListItem>>(arrayListOf())
     var videoList = MutableStateFlow<ArrayList<FileListItem>>(arrayListOf())
     var textList = MutableStateFlow<ArrayList<FileListItem>>(arrayListOf())

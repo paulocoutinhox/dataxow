@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
+import com.dataxow.app.AppData
 import com.dataxow.renderer.RenderCallbackAdapter
 import com.dataxow.ui.components.autoSizeText
 import com.dataxow.ui.components.videoPlayer
@@ -32,13 +34,14 @@ fun playerWindow(
     windowState: WindowState,
     imagePath: String?,
     videoPath: String?,
-    text: String,
     mediaPlayer: EmbeddedMediaPlayer,
     videoSurface: CallbackVideoSurface,
     adapter: RenderCallbackAdapter,
     textFontFamily: FontFamily,
     onCloseRequest: () -> Unit
 ) {
+    val liveText = AppData.liveText.collectAsState().value
+
     Window(
         onCloseRequest = { onCloseRequest() },
         title = "Player",
@@ -65,7 +68,7 @@ fun playerWindow(
                 )
             }
             autoSizeText(
-                text = text,
+                text = liveText,
                 style = TextStyle(
                     fontFamily = textFontFamily,
                     color = Color.White,
@@ -77,7 +80,7 @@ fun playerWindow(
                 modifier = Modifier.align(Alignment.Center).wrapContentSize(Alignment.Center)
             )
             autoSizeText(
-                text = text,
+                text = liveText,
                 style = TextStyle(
                     fontFamily = textFontFamily,
                     color = Color.Black,

@@ -8,6 +8,7 @@ import androidx.compose.ui.window.application
 import com.dataxow.app.AppData
 import com.dataxow.app.ConfigManager
 import com.dataxow.app.configureRoutes
+import com.dataxow.config.AppConfig
 import com.dataxow.helper.ImageListHelper
 import com.dataxow.helper.NetHelper
 import com.dataxow.helper.SystemHelper
@@ -32,7 +33,6 @@ fun main() = application {
 
     var projectPath by remember { mutableStateOf(AppData.config.project) }
 
-    var text by remember { mutableStateOf("DataXow\nSample\nText") }
     var imagePath by remember { mutableStateOf<String?>(null) }
     var videoPath by remember { mutableStateOf<String?>(null) }
     var playerWindowOpen by remember { mutableStateOf(false) }
@@ -47,7 +47,7 @@ fun main() = application {
     var isLoading by remember { mutableStateOf(false) }
 
     AppData.onTextUpdate = { newText ->
-        text = newText
+        AppData.liveText.value = newText
         playerWindowOpen = true
     }
 
@@ -90,10 +90,6 @@ fun main() = application {
             setForceUpdateWindowState = {
                 AppData.onSystemScreenUpdates?.invoke(AppData.isMultiScreen, AppData.playerScreenDevice)
             },
-            text = text,
-            setText = {
-                text = it
-            },
             imagePath = imagePath,
             setImagePath = {
                 videoPath = null
@@ -135,7 +131,6 @@ fun main() = application {
             windowState = windowState,
             imagePath = imagePath,
             videoPath = videoPath,
-            text = text,
             mediaPlayer = AppData.mediaPlayer,
             videoSurface = AppData.videoSurface,
             adapter = AppData.adapter,

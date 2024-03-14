@@ -58,7 +58,7 @@ fun videoListContent(
             items(videoList.value) { video ->
                 if (video.isFile) {
                     Text(
-                        text = File(video.path).name,
+                        text = "• ${File(video.path).name}",
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(8.dp)
