@@ -59,6 +59,8 @@ object AppData {
     )
 
     var liveText = MutableStateFlow("DataXow\nSample\nText")
+    var liveTextIndex = MutableStateFlow(-1)
+
     var imageList = MutableStateFlow<ArrayList<FileListItem>>(arrayListOf())
     var videoList = MutableStateFlow<ArrayList<FileListItem>>(arrayListOf())
     var textList = MutableStateFlow<ArrayList<FileListItem>>(arrayListOf())

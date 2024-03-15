@@ -1,13 +1,12 @@
 package com.dataxow.ui.content
 
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.LocalTextStyle
@@ -16,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -24,6 +22,7 @@ import androidx.compose.ui.window.ApplicationScope
 import coil3.compose.AsyncImage
 import com.dataxow.app.AppData
 import com.dataxow.helper.FileHelper
+import com.dataxow.ui.components.rowData
 import java.io.File
 
 @Composable
@@ -80,21 +79,25 @@ fun imageListContent(
                     val image = imageList.value[index]
 
                     if (image.isFile) {
-                        AsyncImage(
-                            model = File(image.path),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(100.dp)
-                                .padding(8.dp)
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onDoubleTap = {
-                                            setImagePath(image.path)
-                                            setPlayerWindowOpen(true)
-                                        }
+                        rowData(
+                            index = index,
+                            selected = false,
+                            onDoubleTap = {
+                                setImagePath(image.path)
+                                setPlayerWindowOpen(true)
+                            },
+                            content = {
+                                Column {
+                                    AsyncImage(
+                                        model = File(image.path),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(100.dp)
+                                            .padding(8.dp),
                                     )
-                                },
+                                }
+                            }
                         )
                     }
                 })
@@ -104,43 +107,38 @@ fun imageListContent(
                 modifier = Modifier.padding(8.dp),
                 state = listState
             ) {
-                items(imageList.value) { image ->
+                itemsIndexed(imageList.value) { index, image ->
                     if (image.isFile) {
-                        Row {
-                            AsyncImage(
-                                model = File(image.path),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .size(100.dp)
-                                    .padding(8.dp)
-                                    .pointerInput(Unit) {
-                                        detectTapGestures(
-                                            onDoubleTap = {
-                                                setImagePath(image.path)
-                                                setPlayerWindowOpen(true)
-                                            }
+                        rowData(
+                            index = index,
+                            selected = false,
+                            onDoubleTap = {
+                                setImagePath(image.path)
+                                setPlayerWindowOpen(true)
+                            },
+                            content = {
+                                Column {
+                                    Row {
+                                        AsyncImage(
+                                            model = File(image.path),
+                                            contentDescription = null,
+                                            contentScale = ContentScale.Crop,
+                                            modifier = Modifier
+                                                .size(100.dp)
+                                                .padding(8.dp),
                                         )
-                                    },
-                            )
-                            Text(
-                                text = File(image.path).name,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .align(Alignment.CenterVertically)
-                                    .padding(8.dp)
-                                    .pointerInput(Unit) {
-                                        detectTapGestures(
-                                            onDoubleTap = {
-                                                setImagePath(image.path)
-                                                setPlayerWindowOpen(true)
-                                            }
+                                        Text(
+                                            text = File(image.path).name,
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .align(Alignment.CenterVertically)
+                                                .padding(8.dp)
                                         )
                                     }
-                            )
-                        }
-
-                        Divider()
+                                    Divider()
+                                }
+                            }
+                        )
                     }
                 }
             }

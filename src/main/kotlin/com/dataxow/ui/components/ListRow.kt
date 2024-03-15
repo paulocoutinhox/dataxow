@@ -15,13 +15,12 @@ import androidx.compose.ui.input.pointer.pointerInput
 fun rowData(
     index: Int,
     selected: Boolean,
-    onTap: (Int) -> Unit,
-    onDoubleTap: (Int) -> Unit,
+    onTap: ((Int) -> Unit)? = null,
+    onDoubleTap: ((Int) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     Row(
         modifier = Modifier
-            .height(IntrinsicSize.Min)
             .background(rowColor(selected))
             .clickable {
                 // ignore
@@ -29,10 +28,10 @@ fun rowData(
             .pointerInput(Unit) {
                 detectTapGestures(
                     onTap = {
-                        onTap.invoke(index)
+                        onTap?.invoke(index)
                     },
                     onDoubleTap = {
-                        onDoubleTap.invoke(index)
+                        onDoubleTap?.invoke(index)
                     }
                 )
             },

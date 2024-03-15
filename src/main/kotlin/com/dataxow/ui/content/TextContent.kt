@@ -3,7 +3,6 @@ package com.dataxow.ui.content
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.*
@@ -16,10 +15,14 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import com.dataxow.app.AppData
+import com.dataxow.helper.TextHelper
 import com.dataxow.helper.TextListHelper
 import com.dataxow.model.FileListItem
 import com.dataxow.ui.components.rowData
+import com.github.slugify.Slugify
 import java.io.File
+import javax.swing.JOptionPane
+
 
 @Composable
 fun textContent(
@@ -30,7 +33,7 @@ fun textContent(
     contentSelectedListState: LazyListState,
     contentSelectedPreviewListState: LazyListState,
 ) {
-    val liveText = AppData.liveText.collectAsState().value
+    var currentLiveText by remember { mutableStateOf(AppData.liveText.value) }
     var searchText by remember { mutableStateOf("") }
     var searchResults by remember { mutableStateOf(listOf<FileListItem>()) }
     var searchResultsSelectedIndex by remember { mutableStateOf(-1) }
@@ -39,6 +42,7 @@ fun textContent(
     var contentSelectedSelectedIndex by remember { mutableStateOf(-1) }
 
     LaunchedEffect(searchText) {
+        searchResultsSelectedIndex = -1
         searchResults = search(searchText)
     }
 
@@ -56,7 +60,10 @@ fun textContent(
                         singleLine = true
                     )
                     Button(
-                        onClick = { searchResults = search(searchText) },
+                        onClick = {
+                            searchResultsSelectedIndex = -1
+                            searchResults = search(searchText)
+                        },
                         modifier = Modifier.padding(top = 8.dp)
                     ) {
                         Text("Update", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
@@ -137,7 +144,25 @@ fun textContent(
                         Button(
                             modifier = Modifier.weight(1f).padding(end = 4.dp),
                             onClick = {
-                                // ignore
+                                if (searchResultsSelectedIndex > -1 && searchResultsSelectedIndex < searchResults.size) {
+                                    val file = searchResults[searchResultsSelectedIndex]
+
+                                    val option = JOptionPane.showConfirmDialog(
+                                        null,
+                                        "Are you sure?",
+                                        "Message",
+                                        JOptionPane.YES_NO_OPTION,
+                                        JOptionPane.QUESTION_MESSAGE
+                                    )
+
+                                    if (option == JOptionPane.OK_OPTION) {
+                                        File(file.path).delete()
+
+                                        val newList = ArrayList(searchResults)
+                                        newList.removeAt(searchResultsSelectedIndex)
+                                        searchResults = newList
+                                    }
+                                }
                             }) {
                             Text("Delete", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
                         }
@@ -145,7 +170,7 @@ fun textContent(
                     Divider(Modifier.padding(vertical = 6.dp))
                 }
                 Column(modifier = Modifier.weight(1f)) {
-                    BasicText("Content Selected:", style = TextStyle(fontWeight = FontWeight.Bold))
+                    BasicText("Selected Content:", style = TextStyle(fontWeight = FontWeight.Bold))
                     Spacer(Modifier.height(6.dp))
 
                     if (textList.isEmpty()) {
@@ -162,7 +187,7 @@ fun textContent(
                         }
                     } else {
                         LazyColumn(modifier = Modifier.weight(1f), state = contentSelectedListState) {
-                            itemsIndexed(items = textList, key = { index, item -> item.path }) { index, item ->
+                            itemsIndexed(items = textList, key = { _, item -> item.path }) { index, item ->
                                 rowData(
                                     index = index,
                                     selected = contentSelectedSelectedIndex == index,
@@ -171,6 +196,7 @@ fun textContent(
                                     },
                                     onDoubleTap = { selectedIndex ->
                                         contentSelectedSelectedIndex = selectedIndex
+                                        loadPreview(item)
                                     },
                                     content = {
                                         Column {
@@ -190,7 +216,12 @@ fun textContent(
                         Button(
                             modifier = Modifier.weight(1f).padding(end = 4.dp),
                             onClick = {
-                                // ignore
+                                if (contentSelectedSelectedIndex > -1 && contentSelectedSelectedIndex < AppData.textList.value.size) {
+                                    val newList = ArrayList(AppData.textList.value)
+                                    newList.removeAt(contentSelectedSelectedIndex)
+                                    AppData.textList.value = newList
+                                    contentSelectedSelectedIndex = -1
+                                }
                             }) {
                             Text("Remove", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
                         }
@@ -198,7 +229,10 @@ fun textContent(
                         Button(
                             modifier = Modifier.weight(1f).padding(end = 4.dp),
                             onClick = {
-                                //
+                                if (contentSelectedSelectedIndex > -1 && contentSelectedSelectedIndex < AppData.textList.value.size) {
+                                    val item = AppData.textList.value[contentSelectedSelectedIndex]
+                                    loadPreview(item)
+                                }
                             }) {
                             Text("Send to Preview", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
                         }
@@ -207,7 +241,8 @@ fun textContent(
             }
             Divider(Modifier.fillMaxHeight().width(1.dp))
             Column(modifier = Modifier.weight(1f).padding(horizontal = 8.dp)) {
-                BasicText("Selected Content Preview:", style = TextStyle(fontWeight = FontWeight.Bold))
+                BasicText("Preview Selected Content:", style = TextStyle(fontWeight = FontWeight.Bold))
+                Spacer(Modifier.height(6.dp))
 
                 if (previewTextList.isEmpty()) {
                     Column(
@@ -223,24 +258,44 @@ fun textContent(
                     }
                 } else {
                     LazyColumn(modifier = Modifier.weight(1f), state = contentSelectedPreviewListState) {
-                        items(items = previewTextList, key = { item -> item }) { item ->
-                            Text("• $item", modifier = Modifier.padding(2.dp))
-                            Divider()
+                        itemsIndexed(items = previewTextList, key = { _, item -> item }) { index, item ->
+                            rowData(
+                                index = index,
+                                selected = index == AppData.liveTextIndex.value,
+                                onTap = {
+                                    AppData.liveText.value = item
+                                    AppData.liveTextIndex.value = index
+                                    currentLiveText = AppData.liveText.value
+                                    setPlayerWindowOpen(true)
+                                },
+                                onDoubleTap = {
+                                    AppData.liveText.value = item
+                                    AppData.liveTextIndex.value = index
+                                    setPlayerWindowOpen(true)
+                                },
+                                content = {
+                                    Column {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text("•", modifier = Modifier.padding(2.dp))
+                                            Text(item, modifier = Modifier.padding(2.dp))
+                                        }
+                                        Divider()
+                                    }
+                                }
+                            )
                         }
                     }
                 }
             }
             Divider(Modifier.fillMaxHeight().width(1.dp))
             Column(modifier = Modifier.weight(1f).padding(start = 8.dp)) {
-                var currentText by remember { mutableStateOf(liveText) }
-
                 BasicText("Live Text:", style = TextStyle(fontWeight = FontWeight.Bold))
                 Spacer(Modifier.height(6.dp))
                 TextField(
                     modifier = Modifier.fillMaxWidth().weight(1f),
-                    value = currentText,
+                    value = currentLiveText,
                     onValueChange = {
-                        currentText = it
+                        currentLiveText = it
                     },
                     label = { Text("Text to Display") }
                 )
@@ -252,7 +307,7 @@ fun textContent(
                         Button(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
-                                AppData.liveText.value = currentText
+                                AppData.liveText.value = currentLiveText
                                 setPlayerWindowOpen(true)
                             }) {
                             Text("Update Live Text", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
@@ -261,7 +316,7 @@ fun textContent(
                         Button(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
-                                currentText = ""
+                                currentLiveText = ""
                             }) {
                             Text("Clear", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
                         }
@@ -274,11 +329,19 @@ fun textContent(
 
 fun search(query: String): List<FileListItem> {
     if (query.isEmpty()) {
-        return listOf()
+        return arrayListOf()
     }
+
+    val slugify = Slugify.builder().build()
+    val slugQuery = slugify.slugify(query)
 
     return TextListHelper.loadTextsFromPath(File(AppData.config.project, "songs").absolutePath)
         .filter { obj: FileListItem ->
-            File(obj.path).name.contains(query)
+            obj.slug.contains(slugQuery)
         }
+}
+
+fun loadPreview(item: FileListItem) {
+    AppData.liveTextIndex.value = -1
+    AppData.previewTextList.value = ArrayList(TextHelper.loadTextFromPath(item.path))
 }

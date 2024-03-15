@@ -28,6 +28,7 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-compose:3.0.0-alpha06")
     implementation("io.coil-kt.coil3:coil-network-ktor:3.0.0-alpha06")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.8.0")
+    implementation("com.github.slugify:slugify:3.0.6")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 }
 

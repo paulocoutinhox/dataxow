@@ -2,6 +2,7 @@ package com.dataxow.helper
 
 import com.dataxow.app.AppData
 import com.dataxow.model.FileListItem
+import com.github.slugify.Slugify
 import java.io.File
 import java.nio.file.Paths
 import java.util.*
@@ -25,6 +26,7 @@ object TextListHelper {
             .map { obj: FileListItem ->
                 FileListItem(
                     File(textsPath.absolutePathString(), obj.path).absolutePath,
+                    obj.slug,
                     obj.isFile,
                     obj.isDirectory
                 )
@@ -32,12 +34,15 @@ object TextListHelper {
     }
 
     fun prepareTextList(directory: File): List<FileListItem> {
-        return Arrays.stream(directory.listFiles())
+        val slugify = Slugify.builder().build()
+
+        val fileListItems = Arrays.stream(directory.listFiles())
             .filter { file: File ->
                 file.isDirectory || file.name.matches(".*\\.(txt)$".toRegex())
             }
-            .sorted(Comparator.comparing(File::getName))
-            .map { obj: File -> FileListItem(obj.name, obj.isFile, obj.isDirectory) }
+            .map { obj: File -> FileListItem(obj.name, slugify.slugify(obj.name), obj.isFile, obj.isDirectory) }
             .collect(Collectors.toList())
+
+        return fileListItems.sortedWith(Comparator.comparing(FileListItem::slug))
     }
 }
