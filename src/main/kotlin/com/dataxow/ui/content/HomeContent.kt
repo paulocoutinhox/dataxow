@@ -12,6 +12,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
+import com.dataxow.app.AppData
 import javax.swing.JFileChooser
 
 @Composable
@@ -55,11 +56,24 @@ fun homeContent(
                 }
             }
         }
+
         Divider(modifier = Modifier.padding(vertical = 10.dp))
+
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             BasicText("System Screen:", style = TextStyle(fontWeight = FontWeight.Bold))
             Button(onClick = { setForceUpdateWindowState() }) {
                 Text("Refresh Screens")
+            }
+        }
+
+        Divider(modifier = Modifier.padding(vertical = 10.dp))
+
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            BasicText("Player:", style = TextStyle(fontWeight = FontWeight.Bold))
+            Button(onClick = {
+                AppData.onClosePlayer?.invoke()
+            }) {
+                Text("Close")
             }
         }
     }

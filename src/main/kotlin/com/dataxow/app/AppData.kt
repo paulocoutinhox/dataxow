@@ -51,6 +51,7 @@ object AppData {
     var onTextUpdate: ((String) -> Unit)? = null
     var onImageUpdate: ((String) -> Unit)? = null
     var onVideoUpdate: ((String) -> Unit)? = null
+    var onClosePlayer: (() -> Unit)? = null
 
     var onSystemScreenUpdates: ((isMultiScreen: Boolean, device: GraphicsDevice?) -> Unit)? = null
 

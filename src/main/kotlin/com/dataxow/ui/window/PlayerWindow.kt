@@ -1,14 +1,18 @@
 package com.dataxow.ui.window
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.toComposeImageBitmap
@@ -47,20 +51,37 @@ fun playerWindow(
         title = "Player",
         undecorated = true,
         state = windowState,
-        alwaysOnTop = true
+        alwaysOnTop = true,
     ) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(
+            modifier = Modifier.fillMaxSize().background(Color.Black),
+            contentAlignment = Alignment.Center
+        ) {
             if (imagePath != null) {
-                Image(
-                    bitmap = Image.makeFromEncoded(File(imagePath).readBytes()).toComposeImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
+                var bitmap: ImageBitmap? = null
+
+                try {
+                    bitmap = Image.makeFromEncoded(File(imagePath).readBytes()).toComposeImageBitmap()
+                } catch (e: Exception) {
+                    // error when load image
+                }
+
+                if (bitmap != null) {
+                    Image(
+                        bitmap = bitmap,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    BasicText("Error!")
+                }
             }
             if (videoPath != null) {
-                mediaPlayer.videoSurface().set(videoSurface)
-                mediaPlayer.media().play(videoPath)
+                LaunchedEffect(videoPath) {
+                    mediaPlayer.videoSurface().set(videoSurface)
+                    mediaPlayer.media().play(videoPath)
+                }
 
                 videoPlayer(
                     adapter,

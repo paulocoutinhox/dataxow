@@ -8,7 +8,6 @@ import androidx.compose.ui.window.application
 import com.dataxow.app.AppData
 import com.dataxow.app.ConfigManager
 import com.dataxow.app.configureRoutes
-import com.dataxow.config.AppConfig
 import com.dataxow.helper.ImageListHelper
 import com.dataxow.helper.NetHelper
 import com.dataxow.helper.SystemHelper
@@ -53,6 +52,7 @@ fun main() = application {
 
     AppData.onImageUpdate = { newImage ->
         imagePath = newImage
+        AppData.mediaPlayer.controls().stop()
         videoPath = null
         playerWindowOpen = true
     }
@@ -69,6 +69,13 @@ fun main() = application {
 
     AppData.onLoading = { loading ->
         isLoading = loading
+    }
+
+    AppData.onClosePlayer = {
+        AppData.mediaPlayer.controls().stop()
+        imagePath = null
+        videoPath = null
+        playerWindowOpen = false
     }
 
     AppData.mediaPlayer.controls().repeat = true
