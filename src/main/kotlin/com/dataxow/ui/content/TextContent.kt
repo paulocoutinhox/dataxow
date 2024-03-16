@@ -30,6 +30,7 @@ fun textContent(
     applicationScope: ApplicationScope,
     projectPath: String,
     setPlayerWindowOpen: (Boolean) -> Unit,
+    searchResultsListState: LazyListState,
     previewListState: LazyListState,
     contentSelectedListState: LazyListState,
     contentSelectedPreviewListState: LazyListState,
@@ -95,7 +96,10 @@ fun textContent(
                             }
                         }
                     } else {
-                        LazyColumn(modifier = Modifier.weight(1f), state = previewListState) {
+                        LazyColumn(
+                            modifier = Modifier.weight(1f),
+                            state = searchResultsListState
+                        ) {
                             itemsIndexed(
                                 items = searchResults,
                                 key = { index, _ -> index },
@@ -108,9 +112,10 @@ fun textContent(
                                     },
                                     onDoubleTap = { selectedIndex ->
                                         searchResultsSelectedIndex = selectedIndex
+                                        val selectedItem = searchResults[searchResultsSelectedIndex]
 
-                                        if (!AppData.textList.value.contains(item)) {
-                                            val newList = AppData.textList.value + item
+                                        if (!AppData.textList.value.contains(selectedItem)) {
+                                            val newList = AppData.textList.value + selectedItem
                                             AppData.textList.value = ArrayList(newList)
                                         }
                                     },
@@ -202,7 +207,10 @@ fun textContent(
                             )
                         }
                     } else {
-                        LazyColumn(modifier = Modifier.weight(1f), state = contentSelectedListState) {
+                        LazyColumn(
+                            modifier = Modifier.weight(1f),
+                            state = contentSelectedListState
+                        ) {
                             itemsIndexed(
                                 items = textList,
                                 key = { index, _ -> index },
@@ -215,7 +223,9 @@ fun textContent(
                                     },
                                     onDoubleTap = { selectedIndex ->
                                         contentSelectedSelectedIndex = selectedIndex
-                                        loadPreview(item)
+                                        val selectedItem = textList[contentSelectedSelectedIndex]
+
+                                        loadPreview(selectedItem)
                                     },
                                     content = {
                                         Column {
@@ -284,19 +294,29 @@ fun textContent(
                     }
                 } else {
                     LazyColumn(modifier = Modifier.weight(1f), state = contentSelectedPreviewListState) {
-                        itemsIndexed(items = previewTextList, key = { _, item -> item }) { index, item ->
+                        itemsIndexed(
+                            items = previewTextList,
+                            key = { index, _ -> index },
+                        ) { index, item ->
                             rowData(
                                 index = index,
                                 selected = index == AppData.liveTextIndex.value,
-                                onTap = {
-                                    AppData.liveText.value = item
-                                    AppData.liveTextIndex.value = index
+                                onTap = { selectedIndex ->
+                                    val selectedItem = AppData.previewTextList.value[selectedIndex]
+
+                                    AppData.liveText.value = selectedItem
+                                    AppData.liveTextIndex.value = selectedIndex
                                     currentLiveText = AppData.liveText.value
+
                                     setPlayerWindowOpen(true)
                                 },
-                                onDoubleTap = {
-                                    AppData.liveText.value = item
-                                    AppData.liveTextIndex.value = index
+                                onDoubleTap = { selectedIndex ->
+                                    val selectedItem = AppData.previewTextList.value[selectedIndex]
+
+                                    AppData.liveText.value = selectedItem
+                                    AppData.liveTextIndex.value = selectedIndex
+                                    currentLiveText = AppData.liveText.value
+
                                     setPlayerWindowOpen(true)
                                 },
                                 content = {

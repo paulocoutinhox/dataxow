@@ -57,6 +57,7 @@ fun mainWindow(
 
     val videoListListState = rememberLazyListState()
 
+    val textListSearchResultsListState = rememberLazyListState()
     val textListPreviewListState = rememberLazyListState()
     val textListContentSelectedListState = rememberLazyListState()
     val textListContentSelectedPreviewListState = rememberLazyListState()
@@ -153,6 +154,7 @@ fun mainWindow(
                         setPlayerWindowOpen = {
                             setPlayerWindowOpen(it)
                         },
+                        searchResultsListState = textListSearchResultsListState,
                         previewListState = textListPreviewListState,
                         contentSelectedListState = textListContentSelectedListState,
                         contentSelectedPreviewListState = textListContentSelectedPreviewListState,

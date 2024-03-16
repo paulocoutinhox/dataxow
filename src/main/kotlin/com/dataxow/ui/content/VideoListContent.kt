@@ -3,7 +3,6 @@ package com.dataxow.ui.content
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
@@ -54,7 +53,9 @@ fun videoListContent(
             modifier = Modifier.padding(8.dp),
             state = listState,
         ) {
-            itemsIndexed(videoList.value) { index, video ->
+            items(count = videoList.value.size, itemContent = { index ->
+                val video = videoList.value[index]
+
                 if (video.isFile) {
                     rowData(
                         index = index,
@@ -76,7 +77,7 @@ fun videoListContent(
                         }
                     )
                 }
-            }
+            })
         }
     }
 }
