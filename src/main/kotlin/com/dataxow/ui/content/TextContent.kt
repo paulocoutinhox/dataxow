@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
+import androidx.compose.ui.window.Dialog
 import com.dataxow.app.AppData
 import com.dataxow.helper.TextHelper
 import com.dataxow.helper.TextListHelper
@@ -40,6 +41,7 @@ fun textContent(
     val textList = AppData.textList.collectAsState().value
     val previewTextList = AppData.previewTextList.collectAsState().value
     var contentSelectedSelectedIndex by remember { mutableStateOf(-1) }
+    var showAddUpdateDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(searchText) {
         searchResultsSelectedIndex = -1
@@ -94,7 +96,10 @@ fun textContent(
                         }
                     } else {
                         LazyColumn(modifier = Modifier.weight(1f), state = previewListState) {
-                            itemsIndexed(items = searchResults, key = { _, item -> item.path }) { index, item ->
+                            itemsIndexed(
+                                items = searchResults,
+                                key = { index, _ -> index },
+                            ) { index, item ->
                                 rowData(
                                     index = index,
                                     selected = searchResultsSelectedIndex == index,
@@ -112,7 +117,7 @@ fun textContent(
                                     content = {
                                         Column {
                                             Text(
-                                                "• ${File(item.path).name}",
+                                                "• ${File(item.path).nameWithoutExtension}",
                                                 modifier = Modifier.padding(vertical = 5.dp)
                                             )
                                             Divider()
@@ -128,7 +133,8 @@ fun textContent(
                         Button(
                             modifier = Modifier.weight(1f).padding(end = 4.dp),
                             onClick = {
-                                // ignore
+                                searchResultsSelectedIndex = -1
+                                showAddUpdateDialog = true
                             }) {
                             Text("Add", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
                         }
@@ -136,7 +142,9 @@ fun textContent(
                         Button(
                             modifier = Modifier.weight(1f).padding(end = 4.dp),
                             onClick = {
-                                // ignore
+                                if (searchResultsSelectedIndex > -1) {
+                                    showAddUpdateDialog = true
+                                }
                             }) {
                             Text("Change", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
                         }
@@ -158,9 +166,17 @@ fun textContent(
                                     if (option == JOptionPane.OK_OPTION) {
                                         File(file.path).delete()
 
-                                        val newList = ArrayList(searchResults)
-                                        newList.removeAt(searchResultsSelectedIndex)
+                                        val newList = ArrayList(searchResults).apply {
+                                            removeAt(searchResultsSelectedIndex)
+                                        }
+
                                         searchResults = newList
+
+                                        if (searchResultsSelectedIndex >= searchResults.size) {
+                                            searchResultsSelectedIndex = searchResults.size - 1
+                                        } else {
+                                            searchResultsSelectedIndex = -1
+                                        }
                                     }
                                 }
                             }) {
@@ -187,7 +203,10 @@ fun textContent(
                         }
                     } else {
                         LazyColumn(modifier = Modifier.weight(1f), state = contentSelectedListState) {
-                            itemsIndexed(items = textList, key = { _, item -> item.path }) { index, item ->
+                            itemsIndexed(
+                                items = textList,
+                                key = { index, _ -> index },
+                            ) { index, item ->
                                 rowData(
                                     index = index,
                                     selected = contentSelectedSelectedIndex == index,
@@ -201,7 +220,7 @@ fun textContent(
                                     content = {
                                         Column {
                                             Text(
-                                                "• ${File(item.path).name}",
+                                                "• ${File(item.path).nameWithoutExtension}",
                                                 modifier = Modifier.padding(vertical = 5.dp)
                                             )
                                             Divider()
@@ -217,10 +236,17 @@ fun textContent(
                             modifier = Modifier.weight(1f).padding(end = 4.dp),
                             onClick = {
                                 if (contentSelectedSelectedIndex > -1 && contentSelectedSelectedIndex < AppData.textList.value.size) {
-                                    val newList = ArrayList(AppData.textList.value)
-                                    newList.removeAt(contentSelectedSelectedIndex)
+                                    val newList = ArrayList(AppData.textList.value).apply {
+                                        removeAt(contentSelectedSelectedIndex)
+                                    }
+
                                     AppData.textList.value = newList
-                                    contentSelectedSelectedIndex = -1
+
+                                    if (contentSelectedSelectedIndex >= newList.size) {
+                                        contentSelectedSelectedIndex = newList.size - 1
+                                    } else {
+                                        contentSelectedSelectedIndex = -1
+                                    }
                                 }
                             }) {
                             Text("Remove", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
@@ -325,6 +351,21 @@ fun textContent(
             }
         }
     }
+
+    if (showAddUpdateDialog) {
+        var selectedItem: FileListItem? = null
+
+        if (searchResultsSelectedIndex > -1) {
+            selectedItem = searchResults[searchResultsSelectedIndex]
+        }
+
+        fileEditDialog(
+            selectedItem = selectedItem,
+            onClose = {
+                showAddUpdateDialog = false
+            },
+        )
+    }
 }
 
 fun search(query: String): List<FileListItem> {
@@ -344,4 +385,89 @@ fun search(query: String): List<FileListItem> {
 fun loadPreview(item: FileListItem) {
     AppData.liveTextIndex.value = -1
     AppData.previewTextList.value = ArrayList(TextHelper.loadTextFromPath(item.path))
+}
+
+@Composable
+fun fileEditDialog(
+    selectedItem: FileListItem?,
+    onClose: () -> Unit
+) {
+    val isEditing = selectedItem != null
+    var fileName by remember { mutableStateOf(selectedItem?.path ?: "") }
+    var fileContent by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(selectedItem) {
+        if (isEditing) {
+            fileContent = File(selectedItem?.path ?: "").readText()
+        }
+    }
+
+    val dialogTitle = if (isEditing) "Edit File" else "Add New File"
+
+    Dialog(onDismissRequest = onClose) {
+        Surface(
+            shape = MaterialTheme.shapes.medium,
+            color = MaterialTheme.colors.surface,
+            modifier = Modifier.padding(40.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp).fillMaxSize()
+            ) {
+                Text(dialogTitle, style = MaterialTheme.typography.h6)
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (!isEditing) {
+                    OutlinedTextField(
+                        value = fileName,
+                        onValueChange = {
+                            fileName = it
+                            errorMessage = null
+                        },
+                        label = { Text("File Name") },
+                        readOnly = isEditing,
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+                OutlinedTextField(
+                    value = fileContent,
+                    onValueChange = { fileContent = it },
+                    label = { Text("File Content") },
+                    modifier = Modifier.fillMaxWidth().weight(1f)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                if (errorMessage != null) {
+                    Text(errorMessage!!, color = MaterialTheme.colors.error)
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+
+                Button(
+                    onClick = {
+                        if (fileName.isBlank()) {
+                            errorMessage = "File name cannot be empty."
+                            return@Button
+                        }
+
+                        try {
+                            if (isEditing) {
+                                File(selectedItem?.path ?: "").writeText(fileContent.trim())
+                            } else {
+                                val file = File(File(AppData.config.project, "songs"), "$fileName.txt")
+                                file.writeText(fileContent.trim())
+                            }
+                            onClose()
+                        } catch (e: Exception) {
+                            errorMessage = "Error saving file: ${e.message}"
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.End)
+                ) {
+                    Text("Save")
+                }
+            }
+        }
+    }
 }

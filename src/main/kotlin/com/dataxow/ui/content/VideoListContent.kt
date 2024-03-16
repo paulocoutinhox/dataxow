@@ -66,7 +66,7 @@ fun videoListContent(
                         content = {
                             Column {
                                 Text(
-                                    text = "• ${File(video.path).name}",
+                                    text = "• ${File(video.path).nameWithoutExtension}",
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(8.dp)

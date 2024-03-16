@@ -128,7 +128,7 @@ fun imageListContent(
                                                 .padding(8.dp),
                                         )
                                         Text(
-                                            text = File(image.path).name,
+                                            text = File(image.path).nameWithoutExtension,
                                             modifier = Modifier
                                                 .fillMaxSize()
                                                 .align(Alignment.CenterVertically)
