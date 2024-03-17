@@ -396,7 +396,7 @@ fun search(query: String): List<FileListItem> {
     val slugify = Slugify.builder().build()
     val slugQuery = slugify.slugify(query)
 
-    return TextListHelper.loadTextsFromPath(File(AppData.config.project, "songs").absolutePath)
+    return TextListHelper.loadTextsFromPath(File(AppData.config.project, "texts").absolutePath)
         .filter { obj: FileListItem ->
             obj.slug.contains(slugQuery)
         }
@@ -475,7 +475,7 @@ fun fileEditDialog(
                             if (isEditing) {
                                 File(selectedItem?.path ?: "").writeText(fileContent.trim())
                             } else {
-                                val file = File(File(AppData.config.project, "songs"), "$fileName.txt")
+                                val file = File(File(AppData.config.project, "texts"), "$fileName.txt")
                                 file.writeText(fileContent.trim())
                             }
                             onClose()

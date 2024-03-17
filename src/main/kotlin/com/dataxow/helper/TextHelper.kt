@@ -10,7 +10,7 @@ object TextHelper {
     fun loadTextFromPath(path: String): List<String> {
         val textPath = Paths.get(path).normalize()
 
-        if (!textPath.startsWith(Paths.get(AppData.config.project, "songs"))) {
+        if (!textPath.startsWith(Paths.get(AppData.config.project, "texts"))) {
             return listOf()
         }
 

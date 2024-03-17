@@ -13,7 +13,7 @@ object TextListHelper {
     fun loadTextsFromPath(path: String): List<FileListItem> {
         val textsPath = Paths.get(path).normalize()
 
-        if (!textsPath.startsWith(Paths.get(AppData.config.project, "songs"))) {
+        if (!textsPath.startsWith(Paths.get(AppData.config.project, "texts"))) {
             return listOf()
         }
 
