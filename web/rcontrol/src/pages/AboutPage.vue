@@ -1,11 +1,13 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import PageHeader from '../components/PageHeader.vue';
+import useSharedState from '../states/app-state';
 
+const { apiUrl } = useSharedState();
 const router = useRouter();
 
 function back() {
-    router.push({ name: 'Home' });
+    router.push({ name: 'Home', query: { api: apiUrl.value } });
 }
 </script>
 

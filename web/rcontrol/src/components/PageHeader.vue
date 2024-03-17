@@ -1,4 +1,7 @@
-<script setup></script>
+<script setup>
+import useSharedState from '../states/app-state';
+const { apiUrl } = useSharedState();
+</script>
 
 <template>
     <header class="p-3 mb-3 border-bottom">
@@ -11,17 +14,20 @@
 
                 <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
                     <li class="nav-item">
-                        <router-link :to="{ name: 'Home' }" class="nav-link px-2 link-body-emphasis">
+                        <router-link :to="{ name: 'Home', query: { api: apiUrl } }"
+                            class="nav-link px-2 link-body-emphasis">
                             Home
                         </router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link :to="{ name: 'ImageList' }" class="nav-link px-2 link-body-emphasis">
+                        <router-link :to="{ name: 'ImageList', query: { api: apiUrl } }"
+                            class="nav-link px-2 link-body-emphasis">
                             Images
                         </router-link>
                     </li>
                     <li class="nav-item">
-                        <router-link :to="{ name: 'About' }" class="nav-link px-2 link-body-emphasis">
+                        <router-link :to="{ name: 'About', query: { api: apiUrl } }"
+                            class="nav-link px-2 link-body-emphasis">
                             About
                         </router-link>
                     </li>

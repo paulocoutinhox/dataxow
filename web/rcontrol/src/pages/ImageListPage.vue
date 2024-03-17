@@ -93,11 +93,11 @@ onMounted(() => {
         <div class="container">
             <PageHeader />
 
-            <p>
+            <p class="text-center">
                 <button class="btn btn-primary" @click="refresh">Refresh</button>
             </p>
 
-            <div class="row">
+            <div v-if="imageList && imageList.length > 0" class="row">
                 <div class="col-6 col-md-4" v-for="image in imageList" :key="image.path">
                     <div class="image-box">
                         <img :src="`${apiUrl}/image?path=${imageFolder.join('/')}${image.path}`"
@@ -105,6 +105,9 @@ onMounted(() => {
                             @click="playerChangeImage(image.path)">
                     </div>
                 </div>
+            </div>
+            <div v-else class="row text-center">
+                <p>Empty List</p>
             </div>
 
             <PageFooter />
