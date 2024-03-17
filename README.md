@@ -4,7 +4,7 @@ This is a complete datashow application that render text, image and video on oth
 
 ## Data
 
-You need some data to show. I have prepared a ZIP that constains some texts, images and videos.
+You need some data to show. I have prepared a ZIP that contains some texts, images and videos.
 
 Download link:
 
