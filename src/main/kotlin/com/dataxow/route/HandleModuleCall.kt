@@ -11,6 +11,8 @@ suspend fun ApplicationCall.handleModuleCall() {
         "modules.player.update" -> handlePlayerUpdate(requestData)
         "modules.system.settings" -> handleSystemSettings()
         "modules.image.list" -> handleImageList(requestData)
+        "modules.player.show" -> handlePlayerShow(requestData)
+        "modules.player.hide" -> handlePlayerHide(requestData)
         else -> handleNotFound()
     }
 }

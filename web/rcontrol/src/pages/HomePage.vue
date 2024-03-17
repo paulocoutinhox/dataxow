@@ -1,13 +1,15 @@
 <script setup>
 import axios from "axios";
 import { nextTick, ref, watch } from 'vue';
-import PageHeader from '../components/PageHeader.vue';
 import PageFooter from '../components/PageFooter.vue';
+import PageHeader from '../components/PageHeader.vue';
 import useSharedState from '../states/app-state';
 
 const { systemReady, apiUrl } = useSharedState();
 
 const playerText = ref("DataXow\nSample\nText");
+const playerImageUrl = ref("");
+const playerVideoUrl = ref("");
 const btPlayerClearText = ref(null);
 
 watch([systemReady], ([value]) => {
@@ -43,7 +45,9 @@ function playerUpdateData(data, success, error) {
 }
 
 function playerShow() {
-    axios.post(apiUrl.value + '/module/call', { 'func': 'modules.player.show' })
+    axios.post(apiUrl.value + '/module/call', {
+        func: 'modules.player.show'
+    })
         .then(() => {
             console.log('OK');
         }, (e) => {
@@ -52,7 +56,9 @@ function playerShow() {
 }
 
 function playerHide() {
-    axios.post(apiUrl.value + '/module/call', { 'func': 'modules.player.hide' })
+    axios.post(apiUrl.value + '/module/call', {
+        func: 'modules.player.hide'
+    })
         .then(() => {
             console.log('OK');
         }, (e) => {
@@ -76,15 +82,15 @@ function playerClearText() {
 }
 
 function playerSetImage() {
-    playerUpdateData({ type: 'image', src: 'https://picsum.photos/1024/768/?blur=2&rnd=' + new Date().getTime() });
+    playerUpdateData({ type: 'image', url: playerImageUrl.value });
 }
 
 function playerSetVideo() {
-    playerUpdateData({ type: 'video', src: 'https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4' });
+    playerUpdateData({ type: 'video', url: playerVideoUrl.value });
 }
 
 function playerClear() {
-    playerUpdateData({ type: 'black' });
+    playerUpdateData({ type: 'clear' });
 }
 </script>
 
@@ -94,7 +100,7 @@ function playerClear() {
             <PageHeader />
 
             <div class="row g-3">
-                <h3>Player - Control</h3>
+                <h3>Player</h3>
                 <div class="col-auto">
                     <button type="button" class="btn btn-primary" @click="playerShow">Show Player</button>
                 </div>
@@ -109,13 +115,14 @@ function playerClear() {
             <hr>
 
             <div class="row g-3">
-                <h3>Player - Text</h3>
+                <h3>Text</h3>
                 <div class="mb-3">
-                    <label for="inputNewText" class="form-label">New Text</label>
-                    <input v-model="playerText" type="email" class="form-control" id="inputNewText" ref="btPlayerClearText">
+                    <label for="inputNewText" class="form-label">Type New Text:</label>
+                    <textarea v-model="playerText" type="email" class="form-control" id="inputNewText"
+                        ref="btPlayerClearText" rows="5"></textarea>
                 </div>
                 <div class="col-auto">
-                    <button type="button" class="btn btn-primary" @click="playerSetText">Send</button>
+                    <button type="button" class="btn btn-primary" @click="playerSetText">Update</button>
                 </div>
                 <div class="col-auto">
                     <button type="button" class="btn btn-primary" @click="playerClearText">Clear</button>
@@ -125,18 +132,24 @@ function playerClear() {
             <hr>
 
             <div class="row g-3">
-                <h3>Player - Image</h3>
-                <div class="col-auto">
-                    <button type="button" class="btn btn-primary" @click="playerSetImage">Send</button>
+                <h3>Image</h3>
+                <div class="mb-3">
+                    <label for="inputNewImage" class="form-label">Type New URL:</label>
+                    <input v-model="playerImageUrl" type="text" class="form-control" id="inputNewImage">
+                    <br>
+                    <button type="button" class="btn btn-primary" @click="playerSetImage">Update</button>
                 </div>
             </div>
 
             <hr>
 
             <div class="row g-3">
-                <h3>Player - Video</h3>
-                <div class="col-auto">
-                    <button type="button" class="btn btn-primary" @click="playerSetVideo">Send</button>
+                <h3>Video</h3>
+                <div class="mb-3">
+                    <label for="inputNewVideo" class="form-label">Type New URL:</label>
+                    <input v-model="playerVideoUrl" type="text" class="form-control" id="inputNewVideo">
+                    <br>
+                    <button type="button" class="btn btn-primary" @click="playerSetVideo">Update</button>
                 </div>
             </div>
 

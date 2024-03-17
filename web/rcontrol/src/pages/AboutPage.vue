@@ -19,7 +19,11 @@ function back() {
                     <img src="../images/logo.png" alt="Logo" style="max-width: 100px" />
                 </router-link>
 
-                <h1 class="display-5 fw-bold text-body-emphasis">Remote Control App</h1>
+                <h1 class="display-5 fw-bold text-body-emphasis">
+                    DataXow
+                    <br>
+                    Remote Control App
+                </h1>
 
                 <button class="btn btn-primary" @click="back">Back</button>
             </div>

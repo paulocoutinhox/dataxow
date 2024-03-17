@@ -71,11 +71,22 @@ fun main() = application {
         isLoading = loading
     }
 
+    AppData.onShowPlayer = {
+        playerWindowOpen = true
+    }
+
     AppData.onClosePlayer = {
         AppData.mediaPlayer.controls().stop()
         imagePath = null
         videoPath = null
         playerWindowOpen = false
+    }
+
+    AppData.onClearPlayer = {
+        AppData.mediaPlayer.controls().stop()
+        imagePath = null
+        videoPath = null
+        AppData.liveText.value = ""
     }
 
     AppData.mediaPlayer.controls().repeat = true

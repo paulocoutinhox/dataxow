@@ -1,21 +1,17 @@
 package com.dataxow.ui.window
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -28,7 +24,8 @@ import com.dataxow.app.AppData
 import com.dataxow.renderer.RenderCallbackAdapter
 import com.dataxow.ui.components.autoSizeText
 import com.dataxow.ui.components.videoPlayer
-import org.jetbrains.skia.Image
+import io.kamel.image.KamelImage
+import io.kamel.image.asyncPainterResource
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer
 import uk.co.caprica.vlcj.player.embedded.videosurface.CallbackVideoSurface
 import java.io.File
@@ -58,23 +55,20 @@ fun playerWindow(
             contentAlignment = Alignment.Center
         ) {
             if (imagePath != null) {
-                var bitmap: ImageBitmap? = null
-
-                try {
-                    bitmap = Image.makeFromEncoded(File(imagePath).readBytes()).toComposeImageBitmap()
-                } catch (e: Exception) {
-                    // error when load image
-                }
-
-                if (bitmap != null) {
-                    Image(
-                        bitmap = bitmap,
+                if (imagePath.startsWith("http")) {
+                    KamelImage(
+                        resource = asyncPainterResource(data = imagePath),
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
                 } else {
-                    BasicText("Error!")
+                    KamelImage(
+                        resource = asyncPainterResource(data = File(imagePath)),
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop
+                    )
                 }
             }
             if (videoPath != null) {

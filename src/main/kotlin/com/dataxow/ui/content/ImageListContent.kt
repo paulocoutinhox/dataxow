@@ -19,10 +19,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
-import coil3.compose.AsyncImage
 import com.dataxow.app.AppData
 import com.dataxow.helper.FileHelper
 import com.dataxow.ui.components.rowData
+import io.kamel.image.KamelImage
+import io.kamel.image.asyncPainterResource
 import java.io.File
 
 @Composable
@@ -88,8 +89,8 @@ fun imageListContent(
                             },
                             content = {
                                 Column {
-                                    AsyncImage(
-                                        model = File(image.path),
+                                    KamelImage(
+                                        resource = asyncPainterResource(data = File(image.path)),
                                         contentDescription = null,
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -119,8 +120,8 @@ fun imageListContent(
                             content = {
                                 Column {
                                     Row {
-                                        AsyncImage(
-                                            model = File(image.path),
+                                        KamelImage(
+                                            resource = asyncPainterResource(data = File(image.path)),
                                             contentDescription = null,
                                             contentScale = ContentScale.Crop,
                                             modifier = Modifier

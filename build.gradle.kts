@@ -27,6 +27,8 @@ dependencies {
     implementation("com.google.zxing:core:3.5.3")
     implementation("io.coil-kt.coil3:coil-compose:3.0.0-alpha06")
     implementation("io.coil-kt.coil3:coil-network-ktor:3.0.0-alpha06")
+    implementation("media.kamel:kamel-image:0.9.3")
+    implementation("io.ktor:ktor-client-apache5:2.3.7")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.8.0")
     implementation("com.github.slugify:slugify:3.0.6")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
