@@ -6,9 +6,7 @@ This is a complete datashow application that render text, image and video on oth
 
 You need some data to show. I have prepared a ZIP that contains some texts, images and videos.
 
-Download link:
-
-https://www.icloud.com/iclouddrive/001Iot-6ak3ffuqO1S6O25W2Q#data
+Download link: https://www.icloud.com/iclouddrive/001Iot-6ak3ffuqO1S6O25W2Q#data
 
 ## Environment Variables
 
