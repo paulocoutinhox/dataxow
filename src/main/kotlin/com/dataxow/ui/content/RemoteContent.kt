@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import com.dataxow.helper.ImageHelper
+import com.dataxow.helper.SystemHelper
 import com.dataxow.ui.components.ipSelector
 
 @Composable
@@ -68,6 +69,15 @@ fun remoteContent(
                 }
             }) {
                 Text(if (!serverStatus) "Start Server" else "Stop Server")
+            }
+
+            if (serverStatus) {
+                Spacer(modifier = Modifier.width(16.dp))
+                Button(onClick = {
+                    SystemHelper.openWebPage("http://$serverHost:$serverPort/rcontrol/?api=http://$serverHost:$serverPort")
+                }) {
+                    Text("Open Browser")
+                }
             }
         }
         qrCodeBitmap?.let { image ->
