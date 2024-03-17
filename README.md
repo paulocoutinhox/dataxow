@@ -2,7 +2,7 @@
 
 This is a complete datashow application that render text, image and video on other screen devices.
 
-## Data
+## Sample Data
 
 You need some data to show. I have prepared a ZIP that contains some texts, images and videos.
 
