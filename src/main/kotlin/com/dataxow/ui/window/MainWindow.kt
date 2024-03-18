@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ApplicationScope
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
+import com.dataxow.app.AppData
 import com.dataxow.enum.MainTab
 import com.dataxow.ui.components.loadingDialog
 import com.dataxow.ui.content.*
@@ -54,6 +55,7 @@ fun mainWindow(
     val imageListListState = rememberLazyListState()
     val imageListGridState = rememberLazyGridState()
     var imageListIsGrid by remember { mutableStateOf(false) }
+    var imageListShowListImage by remember { mutableStateOf(AppData.config.showListImage) }
 
     val videoListListState = rememberLazyListState()
 
@@ -127,6 +129,11 @@ fun mainWindow(
                         },
                         listState = imageListListState,
                         gridState = imageListGridState,
+                        showListImage = imageListShowListImage,
+                        setShowListImage = {
+                            AppData.config.showListImage = it
+                            imageListShowListImage = AppData.config.showListImage
+                        },
                         reload = {
                             reload()
                         }

@@ -7,10 +7,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material.Button
-import androidx.compose.material.Divider
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
@@ -37,12 +34,14 @@ fun imageListContent(
     setIsGrid: (Boolean) -> Unit,
     listState: LazyListState,
     gridState: LazyGridState,
+    showListImage: Boolean,
+    setShowListImage: (Boolean) -> Unit,
     reload: () -> Unit,
 ) {
     val imageList = AppData.imageList.collectAsState()
 
     Column(modifier = Modifier.padding(16.dp)) {
-        Row {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Button(onClick = {
                 val file = FileHelper.selectFile("Open Image", "image/*")
                 setImagePath(file?.absolutePath)
@@ -66,6 +65,12 @@ fun imageListContent(
                     Text("Show Grid", style = LocalTextStyle.current.copy(textAlign = TextAlign.Center))
                 }
             }
+            Spacer(modifier = Modifier.padding(16.dp))
+            Checkbox(
+                checked = showListImage,
+                onCheckedChange = setShowListImage
+            )
+            Text("Show List Image")
         }
 
         Divider(modifier = Modifier.padding(vertical = 10.dp))
@@ -120,21 +125,31 @@ fun imageListContent(
                             content = {
                                 Column {
                                     Row {
-                                        KamelImage(
-                                            resource = asyncPainterResource(data = File(image.path)),
-                                            contentDescription = null,
-                                            contentScale = ContentScale.Crop,
-                                            modifier = Modifier
-                                                .size(100.dp)
-                                                .padding(8.dp),
-                                        )
-                                        Text(
-                                            text = File(image.path).nameWithoutExtension,
-                                            modifier = Modifier
-                                                .fillMaxSize()
-                                                .align(Alignment.CenterVertically)
-                                                .padding(8.dp)
-                                        )
+                                        if (showListImage) {
+                                            KamelImage(
+                                                resource = asyncPainterResource(data = File(image.path)),
+                                                contentDescription = null,
+                                                contentScale = ContentScale.Crop,
+                                                modifier = Modifier
+                                                    .size(100.dp)
+                                                    .padding(8.dp),
+                                            )
+                                            Text(
+                                                text = File(image.path).nameWithoutExtension,
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .align(Alignment.CenterVertically)
+                                                    .padding(8.dp)
+                                            )
+                                        } else {
+                                            Text(
+                                                text = "• ${File(image.path).nameWithoutExtension}",
+                                                modifier = Modifier
+                                                    .fillMaxSize()
+                                                    .align(Alignment.CenterVertically)
+                                                    .padding(8.dp)
+                                            )
+                                        }
                                     }
                                     Divider()
                                 }
