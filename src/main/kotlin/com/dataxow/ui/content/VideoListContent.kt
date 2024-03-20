@@ -33,7 +33,7 @@ fun videoListContent(
     Column(modifier = Modifier.padding(16.dp)) {
         Row {
             Button(onClick = {
-                val file = FileHelper.selectFile("Open Video", "video/*")
+                val file = FileHelper.selectFile("Open Video")
                 setVideoPath(file?.absolutePath)
                 setPlayerWindowOpen(true)
             }) {

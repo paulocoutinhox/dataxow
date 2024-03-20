@@ -1,6 +1,7 @@
 package com.dataxow.ui.components
 
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.offset
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +29,8 @@ fun autoSizeText(
     acceptableError: Dp = 5.dp,
     maxFontSize: TextUnit = TextUnit.Unspecified,
     color: Color = Color.Unspecified,
+    outlineColor: Color = Color.Black,
+    outlineWidth: Dp = 1.dp,
     fontStyle: FontStyle? = null,
     fontWeight: FontWeight? = null,
     fontFamily: FontFamily? = null,
@@ -101,8 +104,38 @@ fun autoSizeText(
             }
         }
 
-        if (maxFontSize.isSpecified && shrunkFontSize > maxFontSize)
+        if (maxFontSize.isSpecified && shrunkFontSize > maxFontSize) {
             shrunkFontSize = maxFontSize
+        }
+
+        // Drawing the text with an outline effect
+        val outlineOffset = with(LocalDensity.current) { outlineWidth.toPx() }
+        val offsets = listOf(
+            -outlineOffset to -outlineOffset,
+            outlineOffset to -outlineOffset,
+            -outlineOffset to outlineOffset,
+            outlineOffset to outlineOffset
+        )
+
+        // Draw outline texts
+        offsets.forEach { (dx, dy) ->
+            Text(
+                text = text,
+                color = outlineColor,
+                fontSize = shrunkFontSize,
+                fontStyle = fontStyle,
+                fontWeight = fontWeight,
+                fontFamily = fontFamily,
+                letterSpacing = letterSpacing,
+                textDecoration = textDecoration,
+                textAlign = textAlign,
+                lineHeight = lineHeight,
+                modifier = Modifier.offset(dx.dp, dy.dp),
+                onTextLayout = onTextLayout,
+                maxLines = maxLines,
+                style = style
+            )
+        }
 
         Text(
             text = text,

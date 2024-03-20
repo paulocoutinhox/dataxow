@@ -10,13 +10,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
@@ -84,30 +82,14 @@ fun playerWindow(
             }
             autoSizeText(
                 text = liveText,
+                fontFamily = textFontFamily,
                 style = TextStyle(
-                    fontFamily = textFontFamily,
                     color = Color.White,
-                    fontWeight = FontWeight.Bold,
                     background = Color.Transparent,
                     textAlign = TextAlign.Center,
                 ),
-                maxFontSize = 200.sp,
-                modifier = Modifier.align(Alignment.Center).wrapContentSize(Alignment.Center)
-            )
-            autoSizeText(
-                text = liveText,
-                style = TextStyle(
-                    fontFamily = textFontFamily,
-                    color = Color.Black,
-                    fontWeight = FontWeight.Bold,
-                    background = Color.Transparent,
-                    textAlign = TextAlign.Center,
-                    drawStyle = Stroke(
-                        miter = 10f,
-                        width = 5f,
-                        join = StrokeJoin.Round
-                    )
-                ),
+                outlineColor = Color.Black,
+                outlineWidth = 1.dp,
                 maxFontSize = 200.sp,
                 modifier = Modifier.align(Alignment.Center).wrapContentSize(Alignment.Center)
             )

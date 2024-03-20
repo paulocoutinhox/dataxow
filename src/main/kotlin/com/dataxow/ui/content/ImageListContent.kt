@@ -43,7 +43,7 @@ fun imageListContent(
     Column(modifier = Modifier.padding(16.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Button(onClick = {
-                val file = FileHelper.selectFile("Open Image", "image/*")
+                val file = FileHelper.selectFile("Open Image")
                 setImagePath(file?.absolutePath)
                 setPlayerWindowOpen(true)
             }) {
