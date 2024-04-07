@@ -47,4 +47,8 @@ macOS:
 
 **Mobile**
 
-![extras/images/ss-mobile1.png](extras/images/ss-mobile1.png)
+<p align="left">
+    <a href="extras/images/ss-mobile1.png" target="_blank" rel="noopener noreferrer">
+        <img width="250" src="extras/images/ss-mobile1.png" alt="Mobile 1">
+    </a>
+</p>
