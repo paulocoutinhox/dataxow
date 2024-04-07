@@ -47,4 +47,4 @@ macOS:
 
 **Mobile**
 
-![extras/images/ss-mobile1.png](extras/images/ss-mobile1.jpeg)
+![extras/images/ss-mobile1.png](extras/images/ss-mobile1.png)
