@@ -21,4 +21,28 @@ macOS:
 
 - Native Distribution: https://github.com/JetBrains/compose-multiplatform/blob/master/tutorials/Native_distributions_and_local_execution/README.md
 
+## Screenshots
 
+**Home**
+
+![extras/images/ss-desktop1.png](extras/images/ss-desktop1.png)
+
+**Images**
+
+![extras/images/ss-desktop2.png](extras/images/ss-desktop2.png)
+
+**Videos**
+
+![extras/images/ss-desktop3.png](extras/images/ss-desktop3.png)
+
+**Text**
+
+![extras/images/ss-desktop4.png](extras/images/ss-desktop4.png)
+
+**Remote**
+
+![extras/images/ss-desktop5.png](extras/images/ss-desktop5.png)
+
+**Mobile**
+
+![extras/images/ss-mobile1.png](extras/images/ss-mobile1.jpeg)
