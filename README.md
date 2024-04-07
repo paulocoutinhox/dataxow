@@ -2,7 +2,7 @@
 
 This is a complete datashow application that render text, image and video on other screen devices.
 
-You need VLC ([https://www.videolan.org/](https://www.videolan.org/)) to play videos.
+You need install VLC ([https://www.videolan.org/](https://www.videolan.org/)) to play videos.
 
 ## Sample Data
 
