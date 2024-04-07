@@ -2,6 +2,8 @@
 
 This is a complete datashow application that render text, image and video on other screen devices.
 
+You need VLC ([https://www.videolan.org/](https://www.videolan.org/)) to play videos.
+
 ## Sample Data
 
 You need some data to show. I have prepared a ZIP that contains some texts, images and videos.
