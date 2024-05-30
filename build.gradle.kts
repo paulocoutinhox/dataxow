@@ -4,9 +4,10 @@ group = "com.dataxow"
 version = "1.0.0"
 
 plugins {
-    kotlin("jvm") version "1.9.22"
-    id("org.jetbrains.compose") version "1.6.0"
-    kotlin("plugin.serialization") version "1.5.10"
+    kotlin("jvm") version "2.0.0"
+    id("org.jetbrains.compose") version "1.6.20-dev1646"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.0.0"
+    kotlin("plugin.serialization") version "2.0.0"
 }
 
 repositories {
@@ -18,18 +19,17 @@ repositories {
 dependencies {
     implementation(compose.desktop.currentOs)
     implementation("uk.co.caprica:vlcj:4.8.2")
-    implementation("io.ktor:ktor-server-core:2.3.8")
-    implementation("io.ktor:ktor-server-netty:2.3.8")
-    implementation("io.ktor:ktor-server-content-negotiation:2.0.0")
-    implementation("io.ktor:ktor-server-cors:2.3.8")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.0.0")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:1.5.4")
+    implementation("io.ktor:ktor-server-core:2.3.11")
+    implementation("io.ktor:ktor-server-netty:2.3.11")
+    implementation("io.ktor:ktor-server-content-negotiation:2.3.11")
+    implementation("io.ktor:ktor-server-cors:2.3.11")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.11")
+    implementation("io.ktor:ktor-client-apache5:2.3.11")
     implementation("com.google.zxing:core:3.5.3")
     implementation("io.coil-kt.coil3:coil-compose:3.0.0-alpha06")
     implementation("io.coil-kt.coil3:coil-network-ktor:3.0.0-alpha06")
-    implementation("media.kamel:kamel-image:0.9.3")
-    implementation("io.ktor:ktor-client-apache5:2.3.7")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.8.0")
+    implementation("media.kamel:kamel-image:0.9.5")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.8.1")
     implementation("com.github.slugify:slugify:3.0.6")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 }
