@@ -18,12 +18,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
+import coil3.compose.AsyncImage
 import com.dataxow.app.AppData
 import com.dataxow.renderer.RenderCallbackAdapter
 import com.dataxow.ui.components.autoSizeText
 import com.dataxow.ui.components.videoPlayer
-import io.kamel.image.KamelImage
-import io.kamel.image.asyncPainterResource
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer
 import uk.co.caprica.vlcj.player.embedded.videosurface.CallbackVideoSurface
 import java.io.File
@@ -54,15 +53,15 @@ fun playerWindow(
         ) {
             if (imagePath != null) {
                 if (imagePath.startsWith("http")) {
-                    KamelImage(
-                        resource = asyncPainterResource(data = imagePath),
+                    AsyncImage(
+                        model = imagePath,
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
                     )
                 } else {
-                    KamelImage(
-                        resource = asyncPainterResource(data = File(imagePath)),
+                    AsyncImage(
+                        model = File(imagePath),
                         contentDescription = null,
                         modifier = Modifier.fillMaxSize(),
                         contentScale = ContentScale.Crop
