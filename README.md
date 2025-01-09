@@ -23,6 +23,13 @@ macOS:
 
 - Native Distribution: https://github.com/JetBrains/compose-multiplatform/blob/master/tutorials/Native_distributions_and_local_execution/README.md
 
+## Plugins Versions
+
+- org.jetbrains.kotlin.jvm: https://plugins.gradle.org/plugin/org.jetbrains.kotlin.jvm
+- org.jetbrains.compose: https://plugins.gradle.org/plugin/org.jetbrains.compose
+- org.jetbrains.kotlin.plugin.compose: https://plugins.gradle.org/plugin/org.jetbrains.kotlin.plugin.compose
+- org.jetbrains.kotlin.plugin.serialization: https://plugins.gradle.org/plugin/org.jetbrains.kotlin.plugin.serialization
+
 ## Screenshots
 
 **Home**

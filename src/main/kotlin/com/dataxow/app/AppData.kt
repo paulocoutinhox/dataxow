@@ -8,6 +8,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.Font
 import com.dataxow.model.FileListItem
 import com.dataxow.renderer.RenderCallbackAdapter
+import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import uk.co.caprica.vlcj.factory.MediaPlayerFactory
@@ -33,7 +34,7 @@ object AppData {
 
     val config = ConfigManager.loadConfig()
 
-    var server: NettyApplicationEngine? = null
+    var server: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>? = null
 
     val adapter = RenderCallbackAdapter()
     val videoSurface = CallbackVideoSurface(adapter, adapter, true, VideoSurfaceAdapters.getVideoSurfaceAdapter())
