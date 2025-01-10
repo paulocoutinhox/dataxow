@@ -1,8 +1,10 @@
 package com.dataxow.ui.content
 
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.material.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.Text
@@ -49,35 +51,41 @@ fun videoListContent(
 
         Divider(modifier = Modifier.padding(vertical = 10.dp))
 
-        LazyColumn(
-            modifier = Modifier.padding(8.dp),
-            state = listState,
-        ) {
-            items(count = videoList.value.size, itemContent = { index ->
-                val video = videoList.value[index]
+        Row(modifier = Modifier.fillMaxSize()) {
+            LazyColumn(
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                state = listState,
+            ) {
+                items(count = videoList.value.size, itemContent = { index ->
+                    val video = videoList.value[index]
 
-                if (video.isFile) {
-                    rowData(
-                        index = index,
-                        selected = false,
-                        onDoubleTap = {
-                            setVideoPath(video.path)
-                            setPlayerWindowOpen(true)
-                        },
-                        content = {
-                            Column {
-                                Text(
-                                    text = "• ${File(video.path).nameWithoutExtension}",
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(8.dp)
-                                )
-                                Divider()
+                    if (video.isFile) {
+                        rowData(
+                            index = index,
+                            selected = false,
+                            onDoubleTap = {
+                                setVideoPath(video.path)
+                                setPlayerWindowOpen(true)
+                            },
+                            content = {
+                                Column {
+                                    Text(
+                                        text = "• ${File(video.path).nameWithoutExtension}",
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(8.dp)
+                                    )
+                                    Divider()
+                                }
                             }
-                        }
-                    )
-                }
-            })
+                        )
+                    }
+                })
+            }
+            VerticalScrollbar(
+                modifier = Modifier.fillMaxHeight().padding(start = 4.dp),
+                adapter = rememberScrollbarAdapter(listState)
+            )
         }
     }
 }

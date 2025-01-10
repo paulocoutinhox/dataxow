@@ -1,9 +1,11 @@
 package com.dataxow.ui.content
 
+import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -43,6 +45,7 @@ fun textContent(
     val previewTextList = AppData.previewTextList.collectAsState().value
     var contentSelectedSelectedIndex by remember { mutableStateOf(-1) }
     var showAddUpdateDialog by remember { mutableStateOf(false) }
+    val liveTextIndex by AppData.liveTextIndex.collectAsState()
 
     LaunchedEffect(searchText) {
         searchResultsSelectedIndex = -1
@@ -96,38 +99,45 @@ fun textContent(
                             }
                         }
                     } else {
-                        LazyColumn(
-                            modifier = Modifier.weight(1f),
-                            state = searchResultsListState
-                        ) {
-                            itemsIndexed(
-                                items = searchResults,
-                                key = { index, _ -> index },
-                            ) { index, item ->
-                                rowData(
-                                    index = index,
-                                    selected = searchResultsSelectedIndex == index,
-                                    onTap = { selectedIndex ->
-                                        searchResultsSelectedIndex = selectedIndex
-                                    },
-                                    onDoubleTap = { selectedIndex ->
-                                        searchResultsSelectedIndex = selectedIndex
-                                        val selectedItem = searchResults[searchResultsSelectedIndex]
-
-                                        if (!AppData.textList.value.contains(selectedItem)) {
-                                            val newList = AppData.textList.value + selectedItem
-                                            AppData.textList.value = ArrayList(newList)
-                                        }
-                                    },
-                                    content = {
-                                        Column {
-                                            Text(
-                                                "• ${File(item.path).nameWithoutExtension}",
-                                                modifier = Modifier.padding(vertical = 5.dp)
-                                            )
-                                            Divider()
-                                        }
+                        Box(modifier = Modifier.weight(1f)) {
+                            Row(modifier = Modifier.fillMaxSize()) {
+                                LazyColumn(
+                                    modifier = Modifier.weight(1f),
+                                    state = searchResultsListState
+                                ) {
+                                    itemsIndexed(
+                                        items = searchResults,
+                                        key = { index, _ -> index },
+                                    ) { index, item ->
+                                        rowData(
+                                            index = index,
+                                            selected = searchResultsSelectedIndex == index,
+                                            onTap = { selectedIndex ->
+                                                searchResultsSelectedIndex = selectedIndex
+                                            },
+                                            onDoubleTap = { selectedIndex ->
+                                                searchResultsSelectedIndex = selectedIndex
+                                                val selectedItem = searchResults[selectedIndex]
+                                                if (!AppData.textList.value.contains(selectedItem)) {
+                                                    val newList = AppData.textList.value + selectedItem
+                                                    AppData.textList.value = ArrayList(newList)
+                                                }
+                                            },
+                                            content = {
+                                                Column {
+                                                    Text(
+                                                        "• ${File(item.path).nameWithoutExtension}",
+                                                        modifier = Modifier.padding(vertical = 5.dp)
+                                                    )
+                                                    Divider()
+                                                }
+                                            }
+                                        )
                                     }
+                                }
+                                VerticalScrollbar(
+                                    modifier = Modifier.fillMaxHeight().padding(start = 4.dp),
+                                    adapter = rememberScrollbarAdapter(searchResultsListState)
                                 )
                             }
                         }
@@ -207,40 +217,49 @@ fun textContent(
                             )
                         }
                     } else {
-                        LazyColumn(
-                            modifier = Modifier.weight(1f),
-                            state = contentSelectedListState
-                        ) {
-                            itemsIndexed(
-                                items = textList,
-                                key = { index, _ -> index },
-                            ) { index, item ->
-                                rowData(
-                                    index = index,
-                                    selected = contentSelectedSelectedIndex == index,
-                                    onTap = { selectedIndex ->
-                                        contentSelectedSelectedIndex = selectedIndex
-                                    },
-                                    onDoubleTap = { selectedIndex ->
-                                        contentSelectedSelectedIndex = selectedIndex
-                                        val selectedItem = textList[contentSelectedSelectedIndex]
-
-                                        loadPreview(selectedItem)
-                                    },
-                                    content = {
-                                        Column {
-                                            Text(
-                                                "• ${File(item.path).nameWithoutExtension}",
-                                                modifier = Modifier.padding(vertical = 5.dp)
-                                            )
-                                            Divider()
-                                        }
+                        Box(modifier = Modifier.weight(1f)) {
+                            Row(modifier = Modifier.fillMaxSize()) {
+                                LazyColumn(
+                                    modifier = Modifier.weight(1f),
+                                    state = contentSelectedListState
+                                ) {
+                                    itemsIndexed(
+                                        items = textList,
+                                        key = { index, _ -> index },
+                                    ) { index, item ->
+                                        rowData(
+                                            index = index,
+                                            selected = contentSelectedSelectedIndex == index,
+                                            onTap = { selectedIndex ->
+                                                contentSelectedSelectedIndex = selectedIndex
+                                            },
+                                            onDoubleTap = { selectedIndex ->
+                                                contentSelectedSelectedIndex = selectedIndex
+                                                val selectedItem = textList[selectedIndex]
+                                                loadPreview(selectedItem)
+                                            },
+                                            content = {
+                                                Column {
+                                                    Text(
+                                                        "• ${File(item.path).nameWithoutExtension}",
+                                                        modifier = Modifier.padding(vertical = 5.dp)
+                                                    )
+                                                    Divider()
+                                                }
+                                            }
+                                        )
                                     }
+                                }
+                                VerticalScrollbar(
+                                    modifier = Modifier.fillMaxHeight().padding(start = 4.dp),
+                                    adapter = rememberScrollbarAdapter(contentSelectedListState)
                                 )
                             }
                         }
                     }
+
                     Divider(Modifier.padding(vertical = 6.dp))
+
                     Row(modifier = Modifier.fillMaxWidth()) {
                         Button(
                             modifier = Modifier.weight(1f).padding(end = 4.dp),
@@ -293,41 +312,55 @@ fun textContent(
                         )
                     }
                 } else {
-                    LazyColumn(modifier = Modifier.weight(1f), state = contentSelectedPreviewListState) {
-                        itemsIndexed(
-                            items = previewTextList,
-                            key = { index, _ -> index },
-                        ) { index, item ->
-                            rowData(
-                                index = index,
-                                selected = index == AppData.liveTextIndex.value,
-                                onTap = { selectedIndex ->
-                                    val selectedItem = AppData.previewTextList.value[selectedIndex]
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                    ) {
+                        Row(modifier = Modifier.fillMaxSize()) {
+                            LazyColumn(
+                                state = contentSelectedPreviewListState,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                itemsIndexed(
+                                    items = previewTextList,
+                                    key = { index, _ -> index },
+                                ) { index, item ->
+                                    rowData(
+                                        index = index,
+                                        selected = index == liveTextIndex,
+                                        onTap = { selectedIndex ->
+                                            val selectedItem = AppData.previewTextList.value[selectedIndex]
 
-                                    AppData.liveText.value = selectedItem
-                                    AppData.liveTextIndex.value = selectedIndex
-                                    currentLiveText = AppData.liveText.value
+                                            AppData.liveText.value = selectedItem
+                                            AppData.liveTextIndex.value = selectedIndex
+                                            currentLiveText = AppData.liveText.value
 
-                                    setPlayerWindowOpen(true)
-                                },
-                                onDoubleTap = { selectedIndex ->
-                                    val selectedItem = AppData.previewTextList.value[selectedIndex]
+                                            setPlayerWindowOpen(true)
+                                        },
+                                        onDoubleTap = { selectedIndex ->
+                                            val selectedItem = AppData.previewTextList.value[selectedIndex]
 
-                                    AppData.liveText.value = selectedItem
-                                    AppData.liveTextIndex.value = selectedIndex
-                                    currentLiveText = AppData.liveText.value
+                                            AppData.liveText.value = selectedItem
+                                            AppData.liveTextIndex.value = selectedIndex
+                                            currentLiveText = AppData.liveText.value
 
-                                    setPlayerWindowOpen(true)
-                                },
-                                content = {
-                                    Column {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            Text("•", modifier = Modifier.padding(2.dp))
-                                            Text(item, modifier = Modifier.padding(2.dp))
+                                            setPlayerWindowOpen(true)
+                                        },
+                                        content = {
+                                            Column {
+                                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                                    Text(item, modifier = Modifier.padding(2.dp))
+                                                }
+                                                Divider()
+                                            }
                                         }
-                                        Divider()
-                                    }
+                                    )
                                 }
+                            }
+                            VerticalScrollbar(
+                                modifier = Modifier.fillMaxHeight().padding(start = 4.dp),
+                                adapter = rememberScrollbarAdapter(contentSelectedPreviewListState)
                             )
                         }
                     }
