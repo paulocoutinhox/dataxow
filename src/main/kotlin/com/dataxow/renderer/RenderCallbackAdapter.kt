@@ -69,6 +69,6 @@ class RenderCallbackAdapter : BufferFormatCallbackAdapter(), RenderCallback {
     }
 
     override fun unlock(p0: MediaPlayer?) {
-        //
+        // ignore
     }
 }
