@@ -6,8 +6,8 @@ version = "1.0.0"
 plugins {
     kotlin("jvm") version "2.2.21"
     id("org.jetbrains.compose") version "1.9.2"
-    id("org.jetbrains.kotlin.plugin.compose") version "2.1.0"
-    kotlin("plugin.serialization") version "2.1.0"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.2.21"
+    kotlin("plugin.serialization") version "2.2.21"
 }
 
 repositories {
