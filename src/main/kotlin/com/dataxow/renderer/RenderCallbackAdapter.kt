@@ -26,10 +26,6 @@ class RenderCallbackAdapter : BufferFormatCallbackAdapter(), RenderCallback {
         return RV32BufferFormat(sourceWidth, sourceHeight)
     }
 
-    override fun lock(mediaPlayer: MediaPlayer?) {
-        // ignore
-    }
-
     override fun display(
         p0: MediaPlayer,
         nativeBuffers: Array<ByteBuffer>,
@@ -59,10 +55,6 @@ class RenderCallbackAdapter : BufferFormatCallbackAdapter(), RenderCallback {
         }
     }
 
-    override fun unlock(p0: MediaPlayer?) {
-        TODO("Not yet implemented")
-    }
-
     private fun updateImageBitmap(pixelData: ByteArray, width: Int, height: Int) {
         val bitmap = Bitmap().apply {
             allocPixels(ImageInfo.makeS32(width, height, ColorAlphaType.PREMUL))
@@ -70,5 +62,13 @@ class RenderCallbackAdapter : BufferFormatCallbackAdapter(), RenderCallback {
         }
 
         imageBitmap = bitmap.asComposeImageBitmap()
+    }
+
+    override fun lock(mediaPlayer: MediaPlayer?) {
+        // ignore
+    }
+
+    override fun unlock(p0: MediaPlayer?) {
+        //
     }
 }
