@@ -13,12 +13,13 @@ import org.jetbrains.skia.ImageInfo
 import uk.co.caprica.vlcj.player.base.MediaPlayer
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormat
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallback
+import uk.co.caprica.vlcj.player.embedded.videosurface.callback.BufferFormatCallbackAdapter
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.RenderCallback
 import uk.co.caprica.vlcj.player.embedded.videosurface.callback.format.RV32BufferFormat
 import java.io.File
 import java.nio.ByteBuffer
 
-class RenderCallbackAdapter : BufferFormatCallback, RenderCallback {
+class RenderCallbackAdapter : BufferFormatCallbackAdapter(), RenderCallback {
     var imageBitmap by mutableStateOf<ImageBitmap?>(null)
         private set
 
@@ -26,11 +27,17 @@ class RenderCallbackAdapter : BufferFormatCallback, RenderCallback {
         return RV32BufferFormat(sourceWidth, sourceHeight)
     }
 
-    override fun allocatedBuffers(buffers: Array<out ByteBuffer>) {
-        // this is managed by vlcj
+    override fun lock(mediaPlayer: MediaPlayer?) {
+        // ignore
     }
 
-    override fun display(mediaPlayer: MediaPlayer?, nativeBuffers: Array<ByteBuffer>, bufferFormat: BufferFormat) {
+    override fun display(
+        p0: MediaPlayer,
+        nativeBuffers: Array<ByteBuffer>,
+        bufferFormat: BufferFormat,
+        p3: Int,
+        p4: Int
+    ) {
         val fixedImage = false
 
         if (fixedImage) {
@@ -51,6 +58,10 @@ class RenderCallbackAdapter : BufferFormatCallback, RenderCallback {
                 updateImageBitmap(buffer.array(), bufferFormat.width, bufferFormat.height)
             }
         }
+    }
+
+    override fun unlock(p0: MediaPlayer?) {
+        TODO("Not yet implemented")
     }
 
     private fun updateImageBitmap(pixelData: ByteArray, width: Int, height: Int) {
