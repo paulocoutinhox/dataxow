@@ -3,6 +3,8 @@ package com.dataxow
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.window.ApplicationScope
+import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.application
 import com.dataxow.app.AppData
@@ -28,6 +30,16 @@ import kotlinx.serialization.json.Json
 import java.io.File
 
 fun main() = application {
+    Window(
+        onCloseRequest = ::exitApplication,
+        title = "DataXow",
+    ) {
+        App(applicationScope = this@application)
+    }
+}
+
+@Composable
+fun App(applicationScope: ApplicationScope) {
     var windowState by remember { mutableStateOf(WindowState()) }
 
     var projectPath by remember { mutableStateOf(AppData.config.project) }
@@ -96,7 +108,7 @@ fun main() = application {
         colors = AppData.colorPalette
     ) {
         mainWindow(
-            applicationScope = this,
+            applicationScope = applicationScope,
             projectPath = projectPath,
             setProjectPath = {
                 projectPath = it
