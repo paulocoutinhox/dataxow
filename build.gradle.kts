@@ -30,7 +30,7 @@ dependencies {
     implementation("io.coil-kt.coil3:coil-network-ktor:3.0.0-alpha08")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
     implementation("com.github.slugify:slugify:3.0.7")
-    implementation("androidx.compose.material:material-icons-core:1.7.8")
+    implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 }
 

@@ -80,7 +80,7 @@ fun autoSizeText(
                 spanStyles = listOf(),
                 placeholders = listOf(),
                 maxLines = maxLines,
-                ellipsis = false,
+                overflow = TextOverflow.Clip,
             )
         }
 
