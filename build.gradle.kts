@@ -4,10 +4,10 @@ group = "com.dataxow"
 version = "1.0.0"
 
 plugins {
-    kotlin("jvm") version "2.1.0"
-    id("org.jetbrains.compose") version "1.7.3"
-    id("org.jetbrains.kotlin.plugin.compose") version "2.1.0"
-    kotlin("plugin.serialization") version "2.1.0"
+    kotlin("jvm") version "2.2.21"
+    id("org.jetbrains.compose") version "1.9.2"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.2.21"
+    kotlin("plugin.serialization") version "2.2.21"
 }
 
 repositories {
@@ -18,18 +18,19 @@ repositories {
 
 dependencies {
     implementation(compose.desktop.currentOs)
-    implementation("uk.co.caprica:vlcj:4.8.3")
-    implementation("io.ktor:ktor-server-core:3.0.3")
-    implementation("io.ktor:ktor-server-netty:3.0.3")
-    implementation("io.ktor:ktor-server-content-negotiation:3.0.3")
-    implementation("io.ktor:ktor-server-cors:3.0.3")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.3")
-    implementation("io.ktor:ktor-client-apache5:3.0.3")
+    implementation("uk.co.caprica:vlcj:4.11.0")
+    implementation("io.ktor:ktor-server-core:3.3.1")
+    implementation("io.ktor:ktor-server-netty:3.3.1")
+    implementation("io.ktor:ktor-server-content-negotiation:3.3.1")
+    implementation("io.ktor:ktor-server-cors:3.3.1")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:3.3.1")
+    implementation("io.ktor:ktor-client-apache5:3.3.1")
     implementation("com.google.zxing:core:3.5.3")
-    implementation("io.coil-kt.coil3:coil-compose:3.0.4")
+    implementation("io.coil-kt.coil3:coil-compose:3.3.0")
     implementation("io.coil-kt.coil3:coil-network-ktor:3.0.0-alpha08")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
     implementation("com.github.slugify:slugify:3.0.7")
+    implementation("org.jetbrains.compose.material:material-icons-core:1.7.3")
     testImplementation("org.jetbrains.kotlin:kotlin-test")
 }
 

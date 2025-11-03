@@ -18,7 +18,9 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
+import kotlin.collections.listOf
 import kotlin.math.absoluteValue
 import kotlin.math.ceil
 
@@ -78,7 +80,7 @@ fun autoSizeText(
                 spanStyles = listOf(),
                 placeholders = listOf(),
                 maxLines = maxLines,
-                ellipsis = false
+                overflow = TextOverflow.Clip,
             )
         }
 
